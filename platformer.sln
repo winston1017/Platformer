@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "platformer", "Assembly-CSharp.csproj", "{7DF86CE5-98AD-27B9-C81C-95E986E42321}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platformer", "Assembly-CSharp.csproj", "{100AE41E-9853-00A1-0814-C759729749EB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -9,10 +9,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{7DF86CE5-98AD-27B9-C81C-95E986E42321}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DF86CE5-98AD-27B9-C81C-95E986E42321}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DF86CE5-98AD-27B9-C81C-95E986E42321}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DF86CE5-98AD-27B9-C81C-95E986E42321}.Release|Any CPU.Build.0 = Release|Any CPU
+		{100AE41E-9853-00A1-0814-C759729749EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{100AE41E-9853-00A1-0814-C759729749EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{100AE41E-9853-00A1-0814-C759729749EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{100AE41E-9853-00A1-0814-C759729749EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
