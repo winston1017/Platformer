@@ -137,7 +137,7 @@ public class Player : MonoBehaviour {
 			myAnimator.SetBool ("land", true);
 		}
 		if (!Attack && !Slide && (OnGround || airControl)) {
-			MyRigidbody.velocity = new Vector2 (horizontal * movementSpeed, myAnimator.velocity.y);
+			MyRigidbody.velocity = new Vector2 (horizontal * movementSpeed, MyRigidbody.velocity.y);
 		}
 		if (Jump && MyRigidbody.velocity.y == 0) {
 			MyRigidbody.AddForce(new Vector2(0, jumpForce));
@@ -162,6 +162,10 @@ public class Player : MonoBehaviour {
 		{
 			//slide = true;
 			myAnimator.SetTrigger("slide");
+		}
+		if (Input.GetKeyDown (KeyCode.F)) 
+		{
+			myAnimator.SetTrigger("throw");
 		}
 
 	}

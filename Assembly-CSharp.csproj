@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\AttackBehavior.cs" />
+     <Compile Include="Assets\JumpBehavior.cs" />
      <Compile Include="Assets\LandBehavior.cs" />
      <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\SlideBehavior.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>D:/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>

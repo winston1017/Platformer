@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AttackBehavior : StateMachineBehaviour {
+public class SlideBehavior : StateMachineBehaviour {
 
 	 // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
 	override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		Player.Instance.Attack = true;
-
-		if (Player.Instance.OnGround) {
-			Player.Instance.MyRigidbody.velocity = Vector2.zero;
-		}
+		Player.Instance.Slide = true;
 	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -20,9 +16,8 @@ public class AttackBehavior : StateMachineBehaviour {
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state
 	override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
-		Player.Instance.Attack = false;
-		animator.ResetTrigger ("attack");
-		animator.ResetTrigger ("throw");
+		Player.Instance.Slide = false;
+		animator.ResetTrigger ("slide");
 	}
 
 	// OnStateMove is called right after Animator.OnAnimatorMove(). Code that processes and affects root motion should be implemented here
