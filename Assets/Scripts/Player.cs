@@ -3,15 +3,24 @@ using System.Collections;
 
 public class Player : MonoBehaviour {
 
-	private Rigidbody2D myRigidbody;
+	private static Player instance;
+
+	public static Player Instance {
+		get {
+			if (instance == null) {
+				instance = GameObject.FindObjectOfType<Player> ();
+			}
+			return instance;
+		}
+	}
 
 	private Animator myAnimator;
 
 
 	[SerializeField]
 	private float movementSpeed;
-	private bool attack;
-	private bool slide;
+	//private bool attack;
+	//private bool slide;
 	private bool facingRight;
 
 	[SerializeField]
@@ -23,10 +32,9 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	private LayerMask whatIsGround;
 
-	private bool isGrounded;
-	private bool jump;
-
-	private bool jumpAttack;
+	//private bool isGrounded;
+	//private bool jump;
+	//private bool jumpAttack;
 
 	[SerializeField]
 	private bool airControl;
@@ -34,10 +42,32 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	private float jumpForce;
 
+	public Rigidbody2D MyRigidbody{
+		get;
+		set;
+	}
+
+	//Replaced old vars with props
+	public bool Attack {
+		get;
+		set;
+	}
+	public bool Slide {
+		get;
+		set;
+	}
+	public bool Jump {
+		get;
+		set;
+	}
+	public bool OnGround {
+		get;
+		set;
+	}
 	// Use this for initialization
 	void Start () {
 		facingRight = true;
-		myRigidbody = GetComponent<Rigidbody2D> ();
+		MyRigidbody = GetComponent<Rigidbody2D> ();
 		myAnimator = GetComponent<Animator> (); 
 
 	}
@@ -50,20 +80,20 @@ public class Player : MonoBehaviour {
 	void FixedUpdate () {
 		float horizontal = Input.GetAxis ("Horizontal");
 
-		isGrounded = IsGrounded();
+		OnGround = IsGrounded();
 
 		HandleMovement(horizontal);
 
 		flip (horizontal);
 
-		HandleAttacks ();
+		//HandleAttacks ();
 
 		HandleLayers ();
 
-		ResetValues ();
+		//ResetValues ();
 	}
 
-	private void HandleMovement(float horizontal)
+	/*private void HandleMovement(float horizontal)
 	{
 		if (myRigidbody.velocity.y < 0) {
 			myAnimator.SetBool ("land", true);
@@ -98,19 +128,40 @@ public class Player : MonoBehaviour {
 		{
 			myAnimator.SetBool ("jumpAttack", false);
 		}
-	}
+	}*/
 
+	//new HandleMovement
+	private void HandleMovement (float horizontal)
+	{
+		if (MyRigidbody.velocity.y < 0) {
+			myAnimator.SetBool ("land", true);
+		}
+		if (!Attack && !Slide && (OnGround || airControl)) {
+			MyRigidbody.velocity = new Vector2 (horizontal * movementSpeed, myAnimator.velocity.y);
+		}
+		if (Jump && MyRigidbody.velocity.y == 0) {
+			MyRigidbody.AddForce(new Vector2(0, jumpForce));
+		}
+
+		myAnimator.SetFloat ("speed", Mathf.Abs (horizontal));
+	}
 	private void HandleInput()
 	{
-		if (Input.GetKeyDown (KeyCode.Space)) {
-			jump = true;
+		if (Input.GetKeyDown (KeyCode.Space)) 
+		{
+			//jump = true;
+			myAnimator.SetTrigger("jump");
 		}
-		if (Input.GetKeyDown (KeyCode.LeftShift)) {
-			attack = true;
-			jumpAttack = true;
+		if (Input.GetKeyDown (KeyCode.LeftShift)) 
+		{
+			//attack = true;
+			//jumpAttack = true;
+			myAnimator.SetTrigger("attack");
 		}
-		if (Input.GetKeyDown (KeyCode.LeftControl)) {
-			slide = true;
+		if (Input.GetKeyDown (KeyCode.LeftControl)) 
+		{
+			//slide = true;
+			myAnimator.SetTrigger("slide");
 		}
 
 	}
@@ -127,24 +178,25 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	private void ResetValues()
+	/*private void ResetValues()
 	{
 		attack = false;
 		slide = false;
 		jump = false;
 		jumpAttack = false;
-	}
+	}*/
 
 	private bool IsGrounded()
 	{
-		if (myRigidbody.velocity.y <= 0) {
+		if (MyRigidbody.velocity.y <= 0) {
 			foreach (Transform point in groundPoints) {
 				Collider2D[] colliders = Physics2D.OverlapCircleAll (point.position, groundRadius, whatIsGround);
 
 				for (int i = 0; i < colliders.Length; i++) {
-					if (colliders [i].gameObject != gameObject) {
-						myAnimator.ResetTrigger ("jump");
-						myAnimator.SetBool ("land", false);
+					if (colliders [i].gameObject != gameObject)
+					{
+						//myAnimator.ResetTrigger ("jump");
+						//myAnimator.SetBool ("land", false);
 						return true;
 					}
 				}
@@ -155,7 +207,7 @@ public class Player : MonoBehaviour {
 
 	private void HandleLayers()
 	{
-		if (!isGrounded) {
+		if (!OnGround) {
 			myAnimator.SetLayerWeight (1, 1);
 		}
 		else{
