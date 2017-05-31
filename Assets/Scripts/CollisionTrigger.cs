@@ -16,16 +16,15 @@ public class CollisionTrigger : MonoBehaviour {
 		playerCollider = GameObject.Find ("Player").GetComponent<BoxCollider2D> ();
 		Physics2D.IgnoreCollision (platformCollider, platformTrigger, true);
 	}
-	
-	// Update is called once per frame
-	void onTriggerEnter2D(Collider2D other)
+
+	void OnTriggerEnter2D(Collider2D other)
 	{
 		if (other.gameObject.name == "Player") {
 			Physics2D.IgnoreCollision (platformCollider, playerCollider, true);
 		}
 	}
 
-	void onTriggerExit2D(Collider2D other)
+	void OnTriggerExit2D(Collider2D other)
 	{
 		if (other.gameObject.name == "Player") {
 			Physics2D.IgnoreCollision (platformCollider, playerCollider, false);

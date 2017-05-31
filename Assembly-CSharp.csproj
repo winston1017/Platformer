@@ -47,9 +47,12 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\AttackBehavior.cs" />
+     <Compile Include="Assets\Crate.cs" />
      <Compile Include="Assets\JumpBehavior.cs" />
      <Compile Include="Assets\LandBehavior.cs" />
+     <Compile Include="Assets\Scripts\CameraFollow.cs" />
      <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
+     <Compile Include="Assets\Scripts\Knife.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
      <Compile Include="Assets\SlideBehavior.cs" />
  <Reference Include="UnityEngine.UI">

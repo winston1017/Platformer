@@ -19,8 +19,6 @@ public class Player : MonoBehaviour {
 
 	[SerializeField]
 	private float movementSpeed;
-	//private bool attack;
-	//private bool slide;
 	private bool facingRight;
 
 	[SerializeField]
@@ -32,15 +30,14 @@ public class Player : MonoBehaviour {
 	[SerializeField]
 	private LayerMask whatIsGround;
 
-	//private bool isGrounded;
-	//private bool jump;
-	//private bool jumpAttack;
-
 	[SerializeField]
 	private bool airControl;
 
 	[SerializeField]
 	private float jumpForce;
+
+	[SerializeField]
+	private GameObject knifePrefab;
 
 	public Rigidbody2D MyRigidbody{
 		get;
@@ -86,49 +83,8 @@ public class Player : MonoBehaviour {
 
 		flip (horizontal);
 
-		//HandleAttacks ();
-
 		HandleLayers ();
-
-		//ResetValues ();
 	}
-
-	/*private void HandleMovement(float horizontal)
-	{
-		if (myRigidbody.velocity.y < 0) {
-			myAnimator.SetBool ("land", true);
-		}
-		if (!myAnimator.GetBool("slide") && !this.myAnimator.GetCurrentAnimatorStateInfo(0).IsTag("Attack") && (isGrounded || airControl))
-		{
-			myRigidbody.velocity = new Vector2 (horizontal*movementSpeed, myRigidbody.velocity.y); //x=-1, y=0;
-		}
-		if (isGrounded && jump) {
-			isGrounded = false;
-			myRigidbody.AddForce (new Vector2 (0, jumpForce));
-			myAnimator.SetTrigger ("jump");
-		}
-		if (slide && !this.myAnimator.GetCurrentAnimatorStateInfo (0).IsName ("Slide")) {
-			myAnimator.SetBool ("slide", true);
-		} else if (!this.myAnimator.GetCurrentAnimatorStateInfo (0).IsName ("Slide")) {
-			myAnimator.SetBool ("slide", false);
-		}
-		myAnimator.SetFloat("speed", Mathf.Abs(horizontal));
-	}
-	private void HandleAttacks()
-	{
-		if (attack && isGrounded && !this.myAnimator.GetCurrentAnimatorStateInfo(0).IsTag("Attack")) {
-			myAnimator.SetTrigger ("attack");
-			myRigidbody.velocity = Vector2.zero;
-		}
-
-		if (jumpAttack && !isGrounded && !this.myAnimator.GetCurrentAnimatorStateInfo(1).IsName("JumpAttack")) {
-			myAnimator.SetBool ("jumpAttack", true);
-		}
-		if (!jumpAttack && !this.myAnimator.GetCurrentAnimatorStateInfo(1).IsName("JumpAttack"))
-		{
-			myAnimator.SetBool ("jumpAttack", false);
-		}
-	}*/
 
 	//new HandleMovement
 	private void HandleMovement (float horizontal)
@@ -154,8 +110,6 @@ public class Player : MonoBehaviour {
 		}
 		if (Input.GetKeyDown (KeyCode.LeftShift)) 
 		{
-			//attack = true;
-			//jumpAttack = true;
 			myAnimator.SetTrigger("attack");
 		}
 		if (Input.GetKeyDown (KeyCode.LeftControl)) 
@@ -166,6 +120,7 @@ public class Player : MonoBehaviour {
 		if (Input.GetKeyDown (KeyCode.F)) 
 		{
 			myAnimator.SetTrigger("throw");
+			ThrowKnife (0);
 		}
 
 	}
@@ -181,14 +136,6 @@ public class Player : MonoBehaviour {
 			transform.localScale = theScale;
 		}
 	}
-
-	/*private void ResetValues()
-	{
-		attack = false;
-		slide = false;
-		jump = false;
-		jumpAttack = false;
-	}*/
 
 	private bool IsGrounded()
 	{
@@ -216,6 +163,18 @@ public class Player : MonoBehaviour {
 		}
 		else{
 			myAnimator.SetLayerWeight (1, 0);
+		}
+	}
+
+	public void ThrowKnife(int value)
+	{
+		if (facingRight) {
+			
+			GameObject tmp = (GameObject)Instantiate (knifePrefab, transform.position, Quaternion.Euler(0,0,-90));
+			tmp.GetComponent<Knife> ().Initialize (Vector2.right);
+		} else {
+			GameObject tmp = (GameObject)Instantiate (knifePrefab, transform.position, Quaternion.Euler(0,0,90));
+			tmp.GetComponent<Knife> ().Initialize (Vector2.left);
 		}
 	}
 }
