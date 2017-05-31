@@ -16,10 +16,15 @@ public class Player : MonoBehaviour {
 
 	private Animator myAnimator;
 
+	private bool facingRight;
+
+	[SerializeField]
+	private Transform knifePos;
 
 	[SerializeField]
 	private float movementSpeed;
-	private bool facingRight;
+
+
 
 	[SerializeField]
 	private Transform[] groundPoints;
@@ -105,7 +110,6 @@ public class Player : MonoBehaviour {
 	{
 		if (Input.GetKeyDown (KeyCode.Space)) 
 		{
-			//jump = true;
 			myAnimator.SetTrigger("jump");
 		}
 		if (Input.GetKeyDown (KeyCode.LeftShift)) 
@@ -114,13 +118,11 @@ public class Player : MonoBehaviour {
 		}
 		if (Input.GetKeyDown (KeyCode.LeftControl)) 
 		{
-			//slide = true;
 			myAnimator.SetTrigger("slide");
 		}
 		if (Input.GetKeyDown (KeyCode.F)) 
 		{
 			myAnimator.SetTrigger("throw");
-			ThrowKnife (0);
 		}
 
 	}
@@ -146,8 +148,6 @@ public class Player : MonoBehaviour {
 				for (int i = 0; i < colliders.Length; i++) {
 					if (colliders [i].gameObject != gameObject)
 					{
-						//myAnimator.ResetTrigger ("jump");
-						//myAnimator.SetBool ("land", false);
 						return true;
 					}
 				}
@@ -168,13 +168,15 @@ public class Player : MonoBehaviour {
 
 	public void ThrowKnife(int value)
 	{
-		if (facingRight) {
-			
-			GameObject tmp = (GameObject)Instantiate (knifePrefab, transform.position, Quaternion.Euler(0,0,-90));
-			tmp.GetComponent<Knife> ().Initialize (Vector2.right);
-		} else {
-			GameObject tmp = (GameObject)Instantiate (knifePrefab, transform.position, Quaternion.Euler(0,0,90));
-			tmp.GetComponent<Knife> ().Initialize (Vector2.left);
+		if (!OnGround && value == 1 || OnGround && value == 0) {
+			if (facingRight) {
+				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position, Quaternion.Euler(0,0,-90));
+				tmp.GetComponent<Knife> ().Initialize (Vector2.right);
+			} else {
+				GameObject tmp = (GameObject)Instantiate (knifePrefab, knifePos.position, Quaternion.Euler(0,0,90));
+				tmp.GetComponent<Knife> ().Initialize (Vector2.left);
+			}
 		}
+
 	}
 }
