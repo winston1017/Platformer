@@ -1,9 +1,10 @@
 # Platformer
 
-TODO:
-Platform collisions
-Throwing knife projectile
+This is a 2D platformer game project using free 2D sprites found online.
 
-LATER:
-Auto-generate levels
-Enemies
+TODO:
+
+Script Enemies
+
+
+
