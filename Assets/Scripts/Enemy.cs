@@ -6,15 +6,59 @@ public class Enemy : Character {
 
     private IEnemyState currentState;
 
-	// Use this for initialization
-	public override void Start () {
+    [SerializeField]
+    private float meleeRange;
+    [SerializeField]
+    private float throwRange;
+
+    public GameObject Target { get; set; }
+
+    public bool InMeleeRange
+    {
+        get
+        {
+            if (Target != null)
+            {
+                return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
+            }
+
+            return false;
+        }
+    }
+
+    public bool InThrowRange
+    {
+        get
+        {
+            if (Target != null)
+            {
+                return Vector2.Distance(transform.position, Target.transform.position) <= throwRange;
+            }
+
+            return false;
+        }
+    }
+
+    public override void Start () {
         base.Start();
         ChangeState(new IdleState());
 	}
 	
-	// Update is called once per frame
+    private void LookAtTarget()
+    {
+        if (Target != null)
+        {
+            float xDirection = Target.transform.position.x - transform.position.x;
+
+            if (xDirection < 0 && facingRight || xDirection > 0 && !facingRight)
+            {
+                ChangeDirection();
+            }
+        }
+    }
 	void Update () {
         currentState.Execute();
+        LookAtTarget();
 	}
 
     public void ChangeState(IEnemyState newState)
@@ -30,10 +74,12 @@ public class Enemy : Character {
 
     public void Move()
     {
-        MyAnimator.SetFloat("speed", 1);
+        if (!Attack)
+        {
+            MyAnimator.SetFloat("speed", 1);
 
-        transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
-
+            transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
+        }
     }
 
     public Vector2 GetDirection()
