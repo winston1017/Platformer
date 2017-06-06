@@ -92,11 +92,13 @@
     <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
+    <Compile Include="Assets\Scripts\EnemySight.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\IEnemyState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\IdleState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\MeleeState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\PatrolState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\RangedState.cs" />
+    <Compile Include="Assets\Scripts\IgnoreCollision.cs" />
     <Compile Include="Assets\Scripts\Knife.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\SlideBehavior.cs" />

@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Character : MonoBehaviour
 {
 
-    protected Animator myAnimator;
+    public Animator MyAnimator { get; private set; }
 
     [SerializeField]
     protected Transform knifePos;
@@ -24,7 +24,7 @@ public abstract class Character : MonoBehaviour
     public virtual void Start()
     {
         facingRight = true;
-        myAnimator = GetComponent<Animator>();
+        MyAnimator = GetComponent<Animator>();
     }
 
     // Update is called once per frame
