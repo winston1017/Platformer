@@ -16,6 +16,13 @@ public class Enemy : Character {
     [SerializeField]
     private float chaseRangeLo;
 
+    private Vector3 startPos;
+
+    [SerializeField]
+    private Transform leftEdge;
+    [SerializeField]
+    private Transform rightEdge;
+
     public GameObject Target { get; set; }
 
     public bool InMeleeRange
@@ -116,9 +123,17 @@ public class Enemy : Character {
     {
         if (!Attack)
         {
-            MyAnimator.SetFloat("speed", 1);
+            if ((GetDirection().x >0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
+            {
+                MyAnimator.SetFloat("speed", 1);
 
-            transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
+                transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
+            }
+            else if (currentState is PatrolState)
+            {
+                ChangeDirection();
+            }
+            
         }
     }
 
@@ -146,5 +161,15 @@ public class Enemy : Character {
             MyAnimator.SetTrigger("die");
             yield return null;
         }
+    }
+
+    public override void Death()
+    {
+        //Destroy(gameObject);
+        MyAnimator.SetTrigger("idle");
+        MyAnimator.ResetTrigger("die");
+        health = 30;
+        transform.position = startPos;
+
     }
 }

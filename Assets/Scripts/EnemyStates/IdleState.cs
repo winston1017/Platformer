@@ -8,10 +8,11 @@ public class IdleState : IEnemyState
 
     private float idleTimer;
 
-    private float idleDuration = 3;
+    private float idleDuration;
 
     public void Enter(Enemy enemy)
     {
+        idleDuration = UnityEngine.Random.Range(1, 8);
         this.enemy = enemy;
     }
 
@@ -33,7 +34,10 @@ public class IdleState : IEnemyState
 
     public void OnTriggerEnter(Collider2D other)
     {
-
+        if (other.tag == "Knife")
+        {
+            enemy.Target = Player.Instance.gameObject;
+        }
     }
 
     private void Idle()
