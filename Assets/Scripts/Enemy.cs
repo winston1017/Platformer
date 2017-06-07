@@ -10,6 +10,10 @@ public class Enemy : Character {
     private float meleeRange;
     [SerializeField]
     private float throwRange;
+    [SerializeField]
+    private float chaseRangeHi;
+    [SerializeField]
+    private float chaseRangeLo;
 
     public GameObject Target { get; set; }
 
@@ -20,6 +24,20 @@ public class Enemy : Character {
             if (Target != null)
             {
                 return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
+            }
+
+            return false;
+        }
+    }
+
+    //Feature: To not let enemy throw when logically too close to throw objects - chase instead
+    public bool InChaseRange
+    {
+        get
+        {
+            if (Target != null)
+            {
+                return (Vector2.Distance(transform.position, Target.transform.position) <= chaseRangeHi) && (Vector2.Distance(transform.position, Target.transform.position) >= chaseRangeLo);
             }
 
             return false;

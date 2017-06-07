@@ -17,14 +17,12 @@ public class RangedState : IEnemyState
 
     public void Execute()
     {
-        
         ThrowKnife();
-
+        
         if (enemy.InMeleeRange)
         {
             enemy.ChangeState(new MeleeState());
         }
-
         else if (enemy.Target != null)
         {
             enemy.Move();

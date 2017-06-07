@@ -41,6 +41,7 @@ public abstract class Character : MonoBehaviour
 
     public virtual void ThrowKnife(int value)
     {
+        //NOTE: currently gameobj rotates by this command
         if (facingRight)
         {
             GameObject tmp = (GameObject)Instantiate(knifePrefab, knifePos.position, Quaternion.Euler(0, 0, -90));

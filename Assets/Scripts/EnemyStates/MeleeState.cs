@@ -21,11 +21,16 @@ public class MeleeState : IEnemyState {
         
         Attack();
 
-        if (enemy.InThrowRange && !enemy.InMeleeRange)
+        if (enemy.InThrowRange && !enemy.InMeleeRange && !enemy.InChaseRange)
         {
             enemy.ChangeState(new RangedState());
         }
-        else if (enemy.Target = null)
+        //Modified after implementing chasing feature
+        else if (enemy.Target != null && !enemy.InMeleeRange)
+        {
+            enemy.Move();
+        }
+        else if (enemy.Target == null)
         {
             enemy.ChangeState(new IdleState());
         }
