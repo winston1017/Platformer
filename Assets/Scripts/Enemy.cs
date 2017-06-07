@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -57,6 +58,14 @@ public class Enemy : Character {
         }
     }
 
+    public override bool IsDead
+    {
+        get
+        {
+            return health <= 0;
+        }
+    }
+
     public override void Start () {
         base.Start();
         ChangeState(new IdleState());
@@ -75,8 +84,14 @@ public class Enemy : Character {
         }
     }
 	void Update () {
-        currentState.Execute();
-        LookAtTarget();
+        if (!IsDead)
+        {
+            if (!TakingDamage)
+            {
+                currentState.Execute();
+            }
+            LookAtTarget();
+        }
 	}
 
     public void ChangeState(IEnemyState newState)
@@ -105,8 +120,24 @@ public class Enemy : Character {
         return facingRight ? Vector2.right : Vector2.left; //if fR is true, then V2.right
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    public override void OnTriggerEnter2D(Collider2D other)
     {
+        base.OnTriggerEnter2D(other);
         currentState.OnTriggerEnter(other);
+    }
+
+    public override IEnumerator TakeDamage()
+    {
+        health -= 10;
+
+        if (!IsDead)
+        {
+            MyAnimator.SetTrigger("damage");
+        }
+        else
+        {
+            MyAnimator.SetTrigger("die");
+            yield return null;
+        }
     }
 }

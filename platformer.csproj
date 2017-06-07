@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Assets\AttackBehavior.cs" />
     <Compile Include="Assets\Crate.cs" />
+    <Compile Include="Assets\DamageBehavior.cs" />
     <Compile Include="Assets\JumpBehavior.cs" />
     <Compile Include="Assets\LandBehavior.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />

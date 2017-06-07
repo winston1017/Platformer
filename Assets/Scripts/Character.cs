@@ -4,9 +4,6 @@ using UnityEngine;
 
 public abstract class Character : MonoBehaviour
 {
-
-    public Animator MyAnimator { get; private set; }
-
     [SerializeField]
     protected Transform knifePos;
 
@@ -16,9 +13,24 @@ public abstract class Character : MonoBehaviour
     [SerializeField]
     protected GameObject knifePrefab;
 
+    [SerializeField]
+    protected int health;
+
+    [SerializeField]
+    private EdgeCollider2D SwordCollider;
+
+    [SerializeField]
+    private List<string> damageSources;
+
     protected bool facingRight;
 
+    public abstract bool IsDead { get; }    
+
     public bool Attack { get; set;}
+
+    public bool TakingDamage { get; set; }
+
+    public Animator MyAnimator { get; private set; }
 
     // Use this for initialization
     public virtual void Start()
@@ -32,6 +44,8 @@ public abstract class Character : MonoBehaviour
     {
 
     }
+
+    public abstract IEnumerator TakeDamage();
 
     public void ChangeDirection()
     {
@@ -51,6 +65,19 @@ public abstract class Character : MonoBehaviour
         {
             GameObject tmp = (GameObject)Instantiate(knifePrefab, knifePos.position, Quaternion.Euler(0, 0, 90));
             tmp.GetComponent<Knife>().Initialize(Vector2.left);
+        }
+    }
+
+    public void MeleeAttack()
+    {
+        SwordCollider.enabled = !SwordCollider.enabled;
+    }
+
+    public virtual void OnTriggerEnter2D(Collider2D other)
+    {
+        if (damageSources.Contains (other.tag))
+        {
+            StartCoroutine(TakeDamage());
         }
     }
 }

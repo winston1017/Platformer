@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 public class Player : Character
 {
@@ -54,6 +55,14 @@ public class Player : Character
     {
         get;
         set;
+    }
+
+    public override bool IsDead
+    {
+        get
+        {
+            return health <= 0;
+        }
     }
 
     private Vector2 startPos;
@@ -166,5 +175,10 @@ public class Player : Character
             base.ThrowKnife(value);
         }
 
+    }
+
+    public override IEnumerator TakeDamage()
+    {
+        yield return null;
     }
 }
