@@ -2,10 +2,14 @@
 using System.Collections;
 using System;
 
+public delegate void DeadEventHandler();
+
 public class Player : Character
 {
 
     private static Player instance;
+
+    public event DeadEventHandler Dead;
 
     public static Player Instance
     {
@@ -34,6 +38,12 @@ public class Player : Character
     [SerializeField]
     private float jumpForce;
 
+    private bool immortal = false;
+
+    private SpriteRenderer spriteRenderer;
+
+    [SerializeField]
+    private float immortalTime;
     
     public Rigidbody2D MyRigidbody
     {
@@ -61,32 +71,60 @@ public class Player : Character
     {
         get
         {
+            if (health <= 0)
+            {
+                OnDead();
+            }
             return health <= 0;
         }
     }
 
     private Vector2 startPos;
-    // Use this for initialization
+
+
     public override void Start()
     {
         base.Start();
-        startPos = transform.position;        
+        startPos = transform.position;
+        spriteRenderer = GetComponent<SpriteRenderer>();
         MyRigidbody = GetComponent<Rigidbody2D>();
     }
 
     void Update()
     {
-        HandleInput();
+        if (!TakingDamage && !IsDead)
+        {
+            if (transform.position.y <= -14f)
+            {
+                MyRigidbody.velocity = Vector2.zero;
+                transform.position = startPos;
+            }
+
+            HandleInput();
+        }
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        OnGround = IsGrounded();
-        HandleMovement(horizontal);
-        Flip(horizontal);
-        HandleLayers();
+
+        if (!TakingDamage && !IsDead)
+        {
+            float horizontal = Input.GetAxis("Horizontal");
+            OnGround = IsGrounded();
+            HandleMovement(horizontal);
+            Flip(horizontal);
+            HandleLayers();
+        }
+        
+    }
+
+    public void OnDead()
+    {
+        if (Dead != null)
+        {
+            Dead();
+        }
     }
 
     //new HandleMovement
@@ -177,8 +215,41 @@ public class Player : Character
 
     }
 
+    private IEnumerator IndicateImmortal()
+    {
+        while (immortal)
+        {
+            //flash spriteRenderer while immortal to indicate immortality
+            spriteRenderer.enabled = false;
+            yield return new WaitForSeconds(.1f);
+            spriteRenderer.enabled = true;
+            yield return new WaitForSeconds(.1f);
+        }
+    }
     public override IEnumerator TakeDamage()
     {
-        yield return null;
+
+        if (!immortal)
+        {
+            health -= 10;
+            if (!IsDead)
+            {
+                MyAnimator.SetTrigger("damage");
+                immortal = true;
+
+                StartCoroutine(IndicateImmortal());
+                yield return new WaitForSeconds(immortalTime);
+
+                immortal = false;
+            }
+            else
+            {
+                MyAnimator.SetLayerWeight(1, 0);
+                MyAnimator.SetTrigger("die");
+            }
+
+            yield return null;
+
+        }
     }
 }
