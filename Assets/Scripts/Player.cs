@@ -44,28 +44,16 @@ public class Player : Character
 
     [SerializeField]
     private float immortalTime;
-    
-    public Rigidbody2D MyRigidbody
-    {
-        get;
-        set;
-    }
 
-    public bool Slide
-    {
-        get;
-        set;
-    }
-    public bool Jump
-    {
-        get;
-        set;
-    }
-    public bool OnGround
-    {
-        get;
-        set;
-    }
+    private float direction;
+    private bool move;
+
+    private float btnHorizontal;
+    
+    public Rigidbody2D MyRigidbody { get; set; }
+    public bool Slide { get; set; }
+    public bool Jump { get; set; }
+    public bool OnGround { get; set;}
 
     public override bool IsDead
     {
@@ -111,8 +99,20 @@ public class Player : Character
         {
             float horizontal = Input.GetAxis("Horizontal");
             OnGround = IsGrounded();
-            HandleMovement(horizontal);
-            Flip(horizontal);
+
+            //if/else for button movements
+            if (move)
+            {
+                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 2);
+                Flip(direction);
+                HandleMovement(btnHorizontal);
+            }
+            else
+            {
+                HandleMovement(horizontal);
+                Flip(horizontal);
+            }
+            
             HandleLayers();
         }
         
@@ -258,6 +258,41 @@ public class Player : Character
         MyAnimator.SetTrigger("idle");
         health = 30;
         transform.position = startPos;
+    }
 
+    public void BtnJump()
+    {
+        MyAnimator.SetTrigger("jump");
+        Jump = true;
+    }
+
+    public void BtnAttack()
+    {
+        MyAnimator.SetTrigger("attack");
+    }
+
+    public void BtnSlide()
+    {
+        MyAnimator.SetTrigger("slide");
+    }
+
+    public void BtnThrow()
+    {
+        MyAnimator.SetTrigger("throw");
+        
+    }
+
+    public void BtnMove(float direction)
+    {
+        this.direction = direction;
+        this.move = true;
+    }
+
+    public void BtnStopMove()
+    {
+        this.direction = 0;
+        this.btnHorizontal = 0;
+        this.move = false;
     }
 }
+
