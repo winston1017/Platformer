@@ -167,6 +167,10 @@ public class Enemy : Character {
         }
         else
         {
+            
+            GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x, transform.position.y + 2), Quaternion.identity);
+            Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+
             MyAnimator.SetTrigger("die");
             yield return null;
         }
@@ -174,6 +178,7 @@ public class Enemy : Character {
 
     public override void Death()
     {
+        
         //Destroy(gameObject);
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");

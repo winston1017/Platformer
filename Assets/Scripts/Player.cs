@@ -299,6 +299,7 @@ public class Player : Character
     {
         if (other.gameObject.tag == "Coin")
         {
+            GameManager.Instance.CollectedCoins++; //future: coinval
             Destroy(other.gameObject);
         }
     }
