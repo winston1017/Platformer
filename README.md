@@ -1,4 +1,4 @@
-# KNOCK THEM OUT! (On play store)
+# KNOCK THEM OFF! (On play store)
 
 This is a 2D platformer game project.
 
