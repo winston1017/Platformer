@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Enemy : Character {
+public class Enemy : Character
+{
 
     private IEnemyState currentState;
 
@@ -25,6 +26,9 @@ public class Enemy : Character {
 
     private Canvas healthCanvas;
 
+    private bool coinDrop;
+    private int monsterLevel = 1;
+
     public GameObject Target { get; set; }
 
     public bool InMeleeRange
@@ -35,7 +39,6 @@ public class Enemy : Character {
             {
                 return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
             }
-
             return false;
         }
     }
@@ -49,7 +52,6 @@ public class Enemy : Character {
             {
                 return (Vector2.Distance(transform.position, Target.transform.position) <= chaseRangeHi) && (Vector2.Distance(transform.position, Target.transform.position) >= chaseRangeLo);
             }
-
             return false;
         }
     }
@@ -62,7 +64,6 @@ public class Enemy : Character {
             {
                 return Vector2.Distance(transform.position, Target.transform.position) <= throwRange;
             }
-
             return false;
         }
     }
@@ -75,21 +76,22 @@ public class Enemy : Character {
         }
     }
 
-    public override void Start () {
+    public override void Start()
+    {
         base.Start();
         Player.Instance.Dead += new DeadEventHandler(RemoveTarget);
         ChangeState(new IdleState());
-
         healthCanvas = transform.GetComponentInChildren<Canvas>();
         startPos = transform.position;
     }
-	
+
     public void RemoveTarget()
     {
         Target = null;
         ChangeState(new PatrolState());
     }
 
+    //FUNCTION: Face the correct direction
     private void LookAtTarget()
     {
         if (Target != null)
@@ -101,17 +103,26 @@ public class Enemy : Character {
                 ChangeDirection();
             }
         }
+
     }
-	void Update () {
+    void Update()
+    {
         if (!IsDead)
         {
             if (!TakingDamage)
             {
+                if (transform.position.y <= -14f)
+                {
+                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(startPos.x, startPos.y + 2), Quaternion.identity);
+
+                    Death();
+
+                }
                 currentState.Execute();
             }
             LookAtTarget();
         }
-	}
+    }
 
     public void ChangeState(IEnemyState newState)
     {
@@ -128,7 +139,7 @@ public class Enemy : Character {
     {
         if (!Attack)
         {
-            if ((GetDirection().x >0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
+            if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
             {
                 MyAnimator.SetFloat("speed", 1);
 
@@ -138,7 +149,7 @@ public class Enemy : Character {
             {
                 ChangeDirection();
             }
-            
+
         }
     }
 
@@ -159,19 +170,23 @@ public class Enemy : Character {
         {
             healthCanvas.enabled = true;
         }
-
         healthStat.CurrentVal -= 10;
-
         if (!IsDead)
         {
             MyAnimator.SetTrigger("damage");
         }
         else
         {
-            
-            GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x, transform.position.y + 2), Quaternion.identity);
-            Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-
+            if (!coinDrop)
+            {
+                //Randomized position drop for higher level = higher coin count
+                for (int i = 0; i < monsterLevel; i++)
+                {
+                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x+ UnityEngine.Random.Range(0.0f, 2.3f), transform.position.y + UnityEngine.Random.Range(0.0f, 3.8f)), Quaternion.identity);
+                    Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                }
+            }
+            coinDrop = true;
             MyAnimator.SetTrigger("die");
             yield return null;
         }
@@ -179,16 +194,15 @@ public class Enemy : Character {
 
     public override void Death()
     {
-        
-        //Destroy(gameObject);
+        //Fix dead body dropping coins
+        coinDrop = false;
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
         healthStat.MaxVal += 10;
         healthStat.CurrentVal = healthStat.MaxVal;
-
-        //specify startpos and also delay respawn
+        monsterLevel++;
+        
         transform.position = startPos;
-
         healthCanvas.enabled = false;
 
     }
@@ -204,8 +218,7 @@ public class Enemy : Character {
 
         ///Removes the canvas from the enemy, so that the health bar doesn't flip with it
         tmp.SetParent(null);
-
-        ///Changes the enemys direction
+        
         base.ChangeDirection();
 
         //Puts the health bar back on the enemy.

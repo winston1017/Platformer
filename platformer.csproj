@@ -83,6 +83,7 @@
     <Compile Include="Assets\DamageBehavior.cs" />
     <Compile Include="Assets\DeathBehavior.cs" />
     <Compile Include="Assets\FlashBehavior.cs" />
+    <Compile Include="Assets\IgnoreTag.cs" />
     <Compile Include="Assets\JoystickControl.cs" />
     <Compile Include="Assets\JumpBehavior.cs" />
     <Compile Include="Assets\LandBehavior.cs" />

@@ -140,7 +140,7 @@ public class Player : Character
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed, MyRigidbody.velocity.y);
         }
-        if (Jump && MyRigidbody.velocity.y == 0)
+        if (Jump && OnGround && MyRigidbody.velocity.y == 0)
         {
             MyRigidbody.AddForce(new Vector2(0, jumpForce));
         }
@@ -265,11 +265,8 @@ public class Player : Character
 
     public void BtnJump()
     {
-        if (Jump == false)
-        {
             MyAnimator.SetTrigger("jump");
             Jump = true;
-        }
     }
 
     public void BtnAttack()
