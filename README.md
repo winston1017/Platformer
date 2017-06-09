@@ -2,6 +2,8 @@
 
 This is a 2D platformer game project.
 
+-------------------------------------------------
+
 Controls are: 
 
 A, D for left and right. 
@@ -14,6 +16,7 @@ CTRL for Slide.
 
 F for Throw Attack.
 
+-------------------------------------------------
 
 TODO:
 
@@ -36,8 +39,7 @@ Bosses
 Touchscreen joystick (instead of buttons)
 
 
-
-
+-------------------------------------------------
 
 
 DONE:
