@@ -81,7 +81,8 @@ public class Enemy : Character {
         ChangeState(new IdleState());
 
         healthCanvas = transform.GetComponentInChildren<Canvas>();
-	}
+        startPos = transform.position;
+    }
 	
     public void RemoveTarget()
     {
@@ -182,6 +183,7 @@ public class Enemy : Character {
         //Destroy(gameObject);
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
+        healthStat.MaxVal += 10;
         healthStat.CurrentVal = healthStat.MaxVal;
 
         //specify startpos and also delay respawn

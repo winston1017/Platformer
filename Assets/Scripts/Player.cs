@@ -22,7 +22,7 @@ public class Player : Character
             return instance;
         }
     }
-    
+
     [SerializeField]
     private Transform[] groundPoints;
 
@@ -49,11 +49,11 @@ public class Player : Character
     private bool move;
 
     private float btnHorizontal;
-    
+
     public Rigidbody2D MyRigidbody { get; set; }
     public bool Slide { get; set; }
     public bool Jump { get; set; }
-    public bool OnGround { get; set;}
+    public bool OnGround { get; set; }
 
     public override bool IsDead
     {
@@ -97,10 +97,10 @@ public class Player : Character
 
         if (!TakingDamage && !IsDead)
         {
-            float horizontal = Input.GetAxis("Horizontal");
+//#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             OnGround = IsGrounded();
-
-            //if/else for button movements
+            float horizontal = Input.GetAxis("Horizontal");
+            
             if (move)
             {
                 this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 2);
@@ -112,10 +112,13 @@ public class Player : Character
                 HandleMovement(horizontal);
                 Flip(horizontal);
             }
-            
+//#elif UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
+//#endif //End of mobile platform dependendent compilation section started above with #elif
+
+
             HandleLayers();
         }
-        
+
     }
 
     public void OnDead()
@@ -154,7 +157,7 @@ public class Player : Character
         {
             MyAnimator.SetTrigger("attack");
         }
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+        if (Input.GetKeyDown(KeyCode.LeftControl) && MyRigidbody.velocity.x != 0 && MyRigidbody.velocity.y == 0)
         {
             MyAnimator.SetTrigger("slide");
         }
@@ -262,8 +265,11 @@ public class Player : Character
 
     public void BtnJump()
     {
-        MyAnimator.SetTrigger("jump");
-        Jump = true;
+        if (Jump == false)
+        {
+            MyAnimator.SetTrigger("jump");
+            Jump = true;
+        }
     }
 
     public void BtnAttack()
@@ -273,13 +279,16 @@ public class Player : Character
 
     public void BtnSlide()
     {
-        MyAnimator.SetTrigger("slide");
+        if (MyRigidbody.velocity.x != 0 && MyRigidbody.velocity.y == 0)
+        {
+            MyAnimator.SetTrigger("slide");
+        }
     }
 
     public void BtnThrow()
     {
         MyAnimator.SetTrigger("throw");
-        
+
     }
 
     public void BtnMove(float direction)
