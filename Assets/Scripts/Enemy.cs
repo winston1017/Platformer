@@ -23,6 +23,8 @@ public class Enemy : Character {
     [SerializeField]
     private Transform rightEdge;
 
+    private Canvas healthCanvas;
+
     public GameObject Target { get; set; }
 
     public bool InMeleeRange
@@ -69,7 +71,7 @@ public class Enemy : Character {
     {
         get
         {
-            return health <= 0;
+            return healthStat.CurrentVal <= 0;
         }
     }
 
@@ -77,6 +79,8 @@ public class Enemy : Character {
         base.Start();
         Player.Instance.Dead += new DeadEventHandler(RemoveTarget);
         ChangeState(new IdleState());
+
+        healthCanvas = transform.GetComponentInChildren<Canvas>();
 	}
 	
     public void RemoveTarget()
@@ -150,7 +154,12 @@ public class Enemy : Character {
 
     public override IEnumerator TakeDamage()
     {
-        health -= 10;
+        if (!healthCanvas.isActiveAndEnabled)
+        {
+            healthCanvas.enabled = true;
+        }
+
+        healthStat.CurrentVal -= 10;
 
         if (!IsDead)
         {
@@ -168,8 +177,35 @@ public class Enemy : Character {
         //Destroy(gameObject);
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
-        health = 30;
+        healthStat.CurrentVal = healthStat.MaxVal;
+
+        //specify startpos and also delay respawn
         transform.position = startPos;
 
+        healthCanvas.enabled = false;
+
     }
+
+    //ChangeDirection in Enemy
+    public override void ChangeDirection()
+    {
+        //Makes a reference to the enemys canvas
+        Transform tmp = transform.Find("EnemyHPCanvas").transform;
+
+        //Stores the position, so that we know where to move it after we have flipped the enemy
+        Vector3 pos = tmp.position;
+
+        ///Removes the canvas from the enemy, so that the health bar doesn't flip with it
+        tmp.SetParent(null);
+
+        ///Changes the enemys direction
+        base.ChangeDirection();
+
+        //Puts the health bar back on the enemy.
+        tmp.SetParent(transform);
+
+        //Pits the health bar back in the correct position.
+        tmp.position = pos;
+    }
+
 }

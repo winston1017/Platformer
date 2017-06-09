@@ -76,14 +76,22 @@
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Xcode">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Common">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\AttackBehavior.cs" />
     <Compile Include="Assets\Crate.cs" />
     <Compile Include="Assets\DamageBehavior.cs" />
     <Compile Include="Assets\DeathBehavior.cs" />
+    <Compile Include="Assets\FlashBehavior.cs" />
     <Compile Include="Assets\JumpBehavior.cs" />
     <Compile Include="Assets\LandBehavior.cs" />
+    <Compile Include="Assets\Scripts\BarScript.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
@@ -94,10 +102,12 @@
     <Compile Include="Assets\Scripts\EnemyStates\MeleeState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\PatrolState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\RangedState.cs" />
+    <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\IgnoreCollision.cs" />
     <Compile Include="Assets\Scripts\Knife.cs" />
     <Compile Include="Assets\Scripts\MeleeCollider.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\Stat.cs" />
     <Compile Include="Assets\SlideBehavior.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -59,11 +59,11 @@ public class Player : Character
     {
         get
         {
-            if (health <= 0)
+            if (healthStat.CurrentVal <= 0)
             {
                 OnDead();
             }
-            return health <= 0;
+            return healthStat.CurrentVal <= 0;
         }
     }
 
@@ -230,7 +230,7 @@ public class Player : Character
 
         if (!immortal)
         {
-            health -= 10;
+            healthStat.CurrentVal -= 10;
             if (!IsDead)
             {
                 MyAnimator.SetTrigger("damage");
@@ -256,7 +256,7 @@ public class Player : Character
     {
         MyRigidbody.velocity = Vector2.zero;
         MyAnimator.SetTrigger("idle");
-        health = 30;
+        healthStat.CurrentVal = healthStat.MaxVal;
         transform.position = startPos;
     }
 
@@ -293,6 +293,14 @@ public class Player : Character
         this.direction = 0;
         this.btnHorizontal = 0;
         this.move = false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "Coin")
+        {
+            Destroy(other.gameObject);
+        }
     }
 }
 
