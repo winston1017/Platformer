@@ -13,7 +13,11 @@ public class GameManager : MonoBehaviour {
     [SerializeField]
     private Text coinTxt;
 
+    [SerializeField]
+    private Text deathTxt;
+
     private int collectedCoins;
+    private int deathCount;
 
     public static GameManager Instance
     {
@@ -48,6 +52,20 @@ public class GameManager : MonoBehaviour {
         {
             coinTxt.text = value.ToString();
             collectedCoins = value;
+        }
+    }
+
+    public int DeathCount
+    {
+        get
+        {
+            return deathCount;
+        }
+
+        set
+        {
+            deathTxt.text = value.ToString();
+            deathCount = value;
         }
     }
 

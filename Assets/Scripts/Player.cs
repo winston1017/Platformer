@@ -261,6 +261,8 @@ public class Player : Character
         MyAnimator.SetTrigger("idle");
         healthStat.CurrentVal = healthStat.MaxVal;
         transform.position = startPos;
+
+        GameManager.Instance.DeathCount++;
     }
 
     public void BtnJump()
