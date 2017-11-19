@@ -47,6 +47,7 @@ public class Player : Character
 
     private float direction;
     private bool move;
+    private int currentReceiveDamage;
 
     private float btnHorizontal;
 
@@ -86,7 +87,6 @@ public class Player : Character
             {
                 Death();
             }
-
             HandleInput();
         }
     }
@@ -94,16 +94,15 @@ public class Player : Character
     // Update is called once per frame
     void FixedUpdate()
     {
-
         if (!TakingDamage && !IsDead)
         {
-//#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
+            //#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             OnGround = IsGrounded();
             float horizontal = Input.GetAxis("Horizontal");
-            
+
             if (move)
             {
-                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 2);
+                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 3);
                 Flip(direction);
                 HandleMovement(btnHorizontal);
             }
@@ -112,10 +111,8 @@ public class Player : Character
                 HandleMovement(horizontal);
                 Flip(horizontal);
             }
-//#elif UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
-//#endif //End of mobile platform dependendent compilation section started above with #elif
-
-
+            //#elif UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
+            //#endif //End of mobile platform dependendent compilation section started above with #elif
             HandleLayers();
         }
 
@@ -140,7 +137,7 @@ public class Player : Character
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && MyRigidbody.velocity.y == 0)
+        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.01))
         {
             MyRigidbody.AddForce(new Vector2(0, jumpForce));
         }
@@ -228,12 +225,21 @@ public class Player : Character
             yield return new WaitForSeconds(.1f);
         }
     }
-    public override IEnumerator TakeDamage()
+    public override IEnumerator TakeDamage(string currentDmgSrc)
     {
 
         if (!immortal)
         {
-            healthStat.CurrentVal -= 10;
+            if (currentDmgSrc == "erd")
+            {
+                currentReceiveDamage = GameManager.Instance.EnemyRangedDmg;
+            }
+            if (currentDmgSrc == "emd")
+            {
+                currentReceiveDamage = GameManager.Instance.EnemyMeleeDmg;
+            }
+
+            healthStat.CurrentVal -= currentReceiveDamage;
             if (!IsDead)
             {
                 MyAnimator.SetTrigger("damage");
@@ -263,12 +269,13 @@ public class Player : Character
         transform.position = startPos;
 
         GameManager.Instance.DeathCount++;
+        GameManager.Instance.CollectedCoins-= 10;
+        GameManager.Instance.KillCount -= 3;
     }
 
     public void BtnJump()
     {
-            MyAnimator.SetTrigger("jump");
-            Jump = true;
+        MyAnimator.SetTrigger("jump");
     }
 
     public void BtnAttack()
@@ -287,7 +294,6 @@ public class Player : Character
     public void BtnThrow()
     {
         MyAnimator.SetTrigger("throw");
-
     }
 
     public void BtnMove(float direction)
@@ -303,6 +309,7 @@ public class Player : Character
         this.move = false;
     }
 
+
     private void OnCollisionEnter2D(Collision2D other)
     {
         if (other.gameObject.tag == "Coin")
@@ -310,6 +317,32 @@ public class Player : Character
             GameManager.Instance.CollectedCoins++; //future: coinval
             Destroy(other.gameObject);
         }
+        if (other.gameObject.tag == "Burger")
+        {
+            healthStat.CurrentVal += 20; //future: coinval
+            Destroy(other.gameObject);
+        }
     }
+
+
+    public void BtnUpgradePlayerMelee()
+    {
+        if (GameManager.Instance.CollectedCoins >= 10)
+        {
+            GameManager.Instance.PlayerMeleeDmg += 7;
+            GameManager.Instance.CollectedCoins -= 10;
+            GameManager.Instance.MeleeLevel++;
+        }
+    }
+    public void BtnUpgradePlayerRanged()
+    {
+        if (GameManager.Instance.CollectedCoins >= 10)
+        {
+            GameManager.Instance.PlayerRangedDmg += 5;
+            GameManager.Instance.CollectedCoins -= 10;
+            GameManager.Instance.RangedLevel++;
+        }
+    }
+
 }
 

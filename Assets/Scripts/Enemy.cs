@@ -23,11 +23,13 @@ public class Enemy : Character
     private Transform leftEdge;
     [SerializeField]
     private Transform rightEdge;
-
+    
     private Canvas healthCanvas;
 
     private bool coinDrop;
     private int monsterLevel = 1;
+    private int currentReceiveDamage = 10;
+    private int skyMoneyDropNum = 8;
 
     public GameObject Target { get; set; }
 
@@ -113,10 +115,12 @@ public class Enemy : Character
             {
                 if (transform.position.y <= -14f)
                 {
-                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(startPos.x, startPos.y + 2), Quaternion.identity);
-
+                    for (int i = 0; i < skyMoneyDropNum; i++)
+                    {
+                        GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43,43), 18), Quaternion.identity);
+                        Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    }
                     Death();
-
                 }
                 currentState.Execute();
             }
@@ -130,7 +134,6 @@ public class Enemy : Character
         {
             currentState.Exit();
         }
-
         currentState = newState;
         currentState.Enter(this);
     }
@@ -142,7 +145,6 @@ public class Enemy : Character
             if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
             {
                 MyAnimator.SetFloat("speed", 1);
-
                 transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
             }
             else if (currentState is PatrolState)
@@ -164,37 +166,55 @@ public class Enemy : Character
         currentState.OnTriggerEnter(other);
     }
 
-    public override IEnumerator TakeDamage()
+    public override IEnumerator TakeDamage(string currentDmgSrc)
     {
+
+        if (currentDmgSrc == "prd")
+        {
+            currentReceiveDamage= GameManager.Instance.PlayerRangedDmg;
+        }
+        if (currentDmgSrc == "pmd")
+        {
+            currentReceiveDamage = GameManager.Instance.PlayerMeleeDmg;
+        }
+
+        healthStat.CurrentVal -= currentReceiveDamage;
+
         if (!healthCanvas.isActiveAndEnabled)
         {
             healthCanvas.enabled = true;
         }
-        healthStat.CurrentVal -= 10;
+
         if (!IsDead)
         {
             MyAnimator.SetTrigger("damage");
         }
         else
         {
+            MyAnimator.SetTrigger("die");
+            GameManager.Instance.KillCount += monsterLevel; 
             if (!coinDrop)
             {
-                //Randomized position drop for higher level = higher coin count
+                //Randomized position drop for higher level = higher coin count Mathf.CeilToInt(monsterLevel/2)
                 for (int i = 0; i < monsterLevel; i++)
                 {
-                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x+ UnityEngine.Random.Range(0.0f, 2.3f), transform.position.y + UnityEngine.Random.Range(0.0f, 3.8f)), Quaternion.identity);
+                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x+ UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
                     Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                }
+                if (UnityEngine.Random.Range(1, 5) == 3)
+                {
+                    GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
+                    Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 }
             }
             coinDrop = true;
-            MyAnimator.SetTrigger("die");
             yield return null;
         }
     }
-
+    
     public override void Death()
     {
-        //Fix dead body dropping coins
+        //Fix for dead body dropping coins
         coinDrop = false;
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
@@ -204,7 +224,7 @@ public class Enemy : Character
         
         transform.position = startPos;
         healthCanvas.enabled = false;
-
+        Target = null;
     }
 
     //ChangeDirection in Enemy

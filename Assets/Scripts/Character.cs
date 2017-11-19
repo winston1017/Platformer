@@ -23,6 +23,14 @@ public abstract class Character : MonoBehaviour
     [SerializeField]
     private List<string> damageSources;
 
+    //TEST
+    //Initializing damage values
+    protected string playerRangedDmgStr = "prd";
+    protected string playerMeleeDmgStr = "pmd";
+    protected string enemyRangedDmgStr = "erd";
+    protected string enemyMeleeDmgStr = "emd";
+
+
     protected bool facingRight;
 
     public abstract bool IsDead { get; }    
@@ -46,9 +54,8 @@ public abstract class Character : MonoBehaviour
     {
         facingRight = true;
         MyAnimator = GetComponent<Animator>();
-
         healthStat.Initialize();
-    }
+}
 
     // Update is called once per frame
     void Update()
@@ -56,7 +63,7 @@ public abstract class Character : MonoBehaviour
 
     }
 
-    public abstract IEnumerator TakeDamage();
+    public abstract IEnumerator TakeDamage(string currentDmgSrc);
 
     public abstract void Death();
 
@@ -90,7 +97,22 @@ public abstract class Character : MonoBehaviour
     {
         if (damageSources.Contains (other.tag))
         {
-            StartCoroutine(TakeDamage());
+            if (other.tag == "Knife")
+            { 
+                StartCoroutine(TakeDamage(playerRangedDmgStr));
+            }
+            if (other.tag == "Sword")
+            {
+                StartCoroutine(TakeDamage(playerMeleeDmgStr));
+            }
+            if (other.tag == "EnemyMelee")
+            {
+                StartCoroutine(TakeDamage(enemyMeleeDmgStr));
+            }
+            if (other.tag == "EnemyRanged")
+            {
+                StartCoroutine(TakeDamage(enemyRangedDmgStr));
+            }
         }
     }
 }
