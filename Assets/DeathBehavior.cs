@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class DeathBehavior : StateMachineBehaviour {
 
-    private float respawnTime = 8;
+    private float respawnTime = 10;
     private float deathTimer;
     
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state

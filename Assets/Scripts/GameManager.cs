@@ -18,30 +18,32 @@ public class GameManager : MonoBehaviour {
 
     [SerializeField]
     private GameObject coinPrefab;
-
     [SerializeField]
     private GameObject burgerPrefab;
 
     [SerializeField]
     private Text coinTxt;
-
     [SerializeField]
     private Text deathTxt;
-
     [SerializeField]
     private Text killTxt;
-
     [SerializeField]
     private Text rangedTxt;
     [SerializeField]
     private Text meleeTxt;
     [SerializeField]
     private int collectedCoins;
+    [SerializeField]
+    private Text meleeCostTxt;
+    [SerializeField]
+    private Text rangedCostTxt;
+
     private int deathCount;
     private int killCount;
-
     private int rangedLevel = 1;
     private int meleeLevel = 1;
+    private int meleeCost = 10;
+    private int rangedCost = 10;
 
     public static GameManager Instance
     {
@@ -192,6 +194,34 @@ public class GameManager : MonoBehaviour {
         {
             meleeTxt.text = value.ToString();
             meleeLevel = value;
+        }
+    }
+
+    public int MeleeCost
+    {
+        get
+        {
+            return meleeCost;
+        }
+
+        set
+        {
+            meleeCostTxt.text = value.ToString();
+            meleeCost = value;
+        }
+    }
+
+    public int RangedCost
+    {
+        get
+        {
+            return rangedCost;
+        }
+
+        set
+        {
+            rangedCostTxt.text = value.ToString();
+            rangedCost = value;
         }
     }
 

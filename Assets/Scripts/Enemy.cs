@@ -115,7 +115,7 @@ public class Enemy : Character
             {
                 if (transform.position.y <= -14f)
                 {
-                    for (int i = 0; i < skyMoneyDropNum; i++)
+                    for (int i = 0; i < (skyMoneyDropNum + monsterLevel); i++)
                     {
                         GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43,43), 18), Quaternion.identity);
                         Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());

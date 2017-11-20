@@ -96,7 +96,6 @@ public class Player : Character
     {
         if (!TakingDamage && !IsDead)
         {
-            //#if UNITY_STANDALONE || UNITY_EDITOR || UNITY_EDITOR_WIN || UNITY_STANDALONE_WIN
             OnGround = IsGrounded();
             float horizontal = Input.GetAxis("Horizontal");
 
@@ -111,8 +110,6 @@ public class Player : Character
                 HandleMovement(horizontal);
                 Flip(horizontal);
             }
-            //#elif UNITY_IOS || UNITY_ANDROID || UNITY_WP8 || UNITY_IPHONE
-            //#endif //End of mobile platform dependendent compilation section started above with #elif
             HandleLayers();
         }
 
@@ -133,11 +130,15 @@ public class Player : Character
         {
             MyAnimator.SetBool("land", true);
         }
-        if (!Attack && !Slide && (OnGround || airControl))
+        if (!Attack && !Slide && (OnGround || airControl)) // add one for aircontrool and in air and slow it down
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.01))
+        if (Attack && !Slide && (OnGround || airControl))
+        {
+            MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 2, MyRigidbody.velocity.y);
+        }
+        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.10))
         {
             MyRigidbody.AddForce(new Vector2(0, jumpForce));
         }
@@ -167,9 +168,12 @@ public class Player : Character
 
     private void Flip(float horizontal)
     {
-        if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight)
+        if (!Slide)
         {
-            ChangeDirection();
+            if (horizontal > 0 && !facingRight || horizontal < 0 && facingRight)
+            {
+                ChangeDirection();
+            }
         }
     }
 
@@ -211,7 +215,6 @@ public class Player : Character
         {
             base.ThrowKnife(value);
         }
-
     }
 
     private IEnumerator IndicateImmortal()
@@ -220,9 +223,9 @@ public class Player : Character
         {
             //flash spriteRenderer while immortal to indicate immortality
             spriteRenderer.enabled = false;
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.15f);
             spriteRenderer.enabled = true;
-            yield return new WaitForSeconds(.1f);
+            yield return new WaitForSeconds(.15f);
         }
     }
     public override IEnumerator TakeDamage(string currentDmgSrc)
@@ -269,7 +272,7 @@ public class Player : Character
         transform.position = startPos;
 
         GameManager.Instance.DeathCount++;
-        GameManager.Instance.CollectedCoins-= 10;
+        GameManager.Instance.CollectedCoins -= 10;
         GameManager.Instance.KillCount -= 3;
     }
 
@@ -285,7 +288,8 @@ public class Player : Character
 
     public void BtnSlide()
     {
-        if (MyRigidbody.velocity.x != 0 && MyRigidbody.velocity.y == 0)
+        //if (MyRigidbody.velocity.x != 0 && MyRigidbody.velocity.y == 0)
+        if (MyRigidbody.velocity.y == 0)
         {
             MyAnimator.SetTrigger("slide");
         }
@@ -327,20 +331,22 @@ public class Player : Character
 
     public void BtnUpgradePlayerMelee()
     {
-        if (GameManager.Instance.CollectedCoins >= 10)
+        if (GameManager.Instance.CollectedCoins >= GameManager.Instance.MeleeCost)
         {
-            GameManager.Instance.PlayerMeleeDmg += 7;
-            GameManager.Instance.CollectedCoins -= 10;
+            GameManager.Instance.PlayerMeleeDmg += 6;
+            GameManager.Instance.CollectedCoins -= GameManager.Instance.MeleeCost;
             GameManager.Instance.MeleeLevel++;
+            GameManager.Instance.MeleeCost += 2;
         }
     }
     public void BtnUpgradePlayerRanged()
     {
-        if (GameManager.Instance.CollectedCoins >= 10)
+        if (GameManager.Instance.CollectedCoins >= GameManager.Instance.RangedCost)
         {
-            GameManager.Instance.PlayerRangedDmg += 5;
-            GameManager.Instance.CollectedCoins -= 10;
+            GameManager.Instance.PlayerRangedDmg += 3;
+            GameManager.Instance.CollectedCoins -= GameManager.Instance.RangedCost;
             GameManager.Instance.RangedLevel++;
+            GameManager.Instance.RangedCost += 2;
         }
     }
 
