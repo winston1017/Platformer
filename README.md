@@ -1,20 +1,10 @@
 # KNOCK THEM OFF! (On play store)
 
-This is a 2D platformer game project.
+This is a 2D platformer game project. Have been made open-source again on Nov, 2017.
 
 -------------------------------------------------
 
-Controls are: 
-
-A, D for left and right. 
-
-SPACE for jump. 
-
-SHIFT for Attack.
-
-CTRL for Slide.
-
-F for Throw Attack.
+Controls are mobile friendly now as well as desktop friendly during dev mode.
 
 -------------------------------------------------
 
@@ -57,10 +47,12 @@ Gliding in the air with parachute
 Bosses
 
 
+
 -------------------------------------------------
 
 
-DONE:
+
+DONE (PRIOR TO NOV 2017):
 
 Health bars and other power bars
 
