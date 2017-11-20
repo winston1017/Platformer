@@ -8,13 +8,13 @@ public class GameManager : MonoBehaviour {
     private static GameManager instance;
 
     [SerializeField]
-    private int playerRangedDmg = 10;
+    private float playerRangedDmg = 10;
     [SerializeField]
-    private int playerMeleeDmg = 10;
+    private float playerMeleeDmg = 10;
     [SerializeField]
-    private int enemyRangedDmg = 10;
+    private float enemyRangedDmg = 10;
     [SerializeField]
-    private int enemyMeleeDmg = 10;
+    private float enemyMeleeDmg = 10;
 
     [SerializeField]
     private GameObject coinPrefab;
@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour {
     private Text deathTxt;
     [SerializeField]
     private Text killTxt;
+    [SerializeField]
+    private Text highScoreTxt;
     [SerializeField]
     private Text rangedTxt;
     [SerializeField]
@@ -44,6 +46,9 @@ public class GameManager : MonoBehaviour {
     private int meleeLevel = 1;
     private int meleeCost = 10;
     private int rangedCost = 10;
+
+    private int highScore = 0;
+    string highScoreKey = "HighScore";
 
     public static GameManager Instance
     {
@@ -117,7 +122,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public int PlayerRangedDmg
+    public float PlayerRangedDmg
     {
         get
         {
@@ -130,7 +135,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public int PlayerMeleeDmg
+    public float PlayerMeleeDmg
     {
         get
         {
@@ -143,7 +148,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public int EnemyRangedDmg
+    public float EnemyRangedDmg
     {
         get
         {
@@ -156,7 +161,7 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public int EnemyMeleeDmg
+    public float EnemyMeleeDmg
     {
         get
         {
@@ -229,12 +234,24 @@ public class GameManager : MonoBehaviour {
 
 
     // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    void Start()
+    {
+        killCount = 0;
+        highScore = PlayerPrefs.GetInt(highScoreKey, 0);
+        highScoreTxt.text = highScore.ToString();
+    }
+
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (killCount > highScore)
+        {
+            highScore = killCount;
+            highScoreTxt.text = "" + killCount;
+
+            PlayerPrefs.SetInt(highScoreKey, highScore);
+            PlayerPrefs.Save();
+        }
+    }
 }

@@ -91,6 +91,8 @@
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\Character.cs" />
     <Compile Include="Assets\Scripts\CollisionTrigger.cs" />
+    <Compile Include="Assets\Scripts\CombatText.cs" />
+    <Compile Include="Assets\Scripts\CombatTextManager.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
     <Compile Include="Assets\Scripts\EnemySight.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\IEnemyState.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="Assets\Scripts\MeleeCollider.cs" />
     <Compile Include="Assets\Scripts\PauseMenu.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\RandomSpawner.cs" />
     <Compile Include="Assets\Scripts\Stat.cs" />
     <Compile Include="Assets\SlideBehavior.cs" />
   </ItemGroup>

@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class Crate : MonoBehaviour
 {
-
     private Rigidbody2D myRigidBody;
     private Vector2 startPos;
 
@@ -24,4 +23,5 @@ public class Crate : MonoBehaviour
             myRigidBody.position = startPos;
         }
     }
+    
 }

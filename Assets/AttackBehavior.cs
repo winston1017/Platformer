@@ -9,13 +9,15 @@ public class AttackBehavior : StateMachineBehaviour {
         animator.GetComponent<Character>().Attack = true;
 
         animator.SetFloat("speed", 0);
-        if (animator.tag == "Player")
-        {
-            if (Player.Instance.OnGround)
-            {
-                Player.Instance.MyRigidbody.velocity = Vector2.zero;
-            }
-        }
+
+        //Temporarily remove STUN
+        //if (animator.tag == "Player")
+        //{
+        //    if (Player.Instance.OnGround)
+        //    {
+        //        Player.Instance.MyRigidbody.velocity = Vector2.zero;
+        //    }
+        //}
 	}
 
 	// OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

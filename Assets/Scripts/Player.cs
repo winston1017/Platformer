@@ -47,7 +47,7 @@ public class Player : Character
 
     private float direction;
     private bool move;
-    private int currentReceiveDamage;
+    private float currentReceiveDamage;
 
     private float btnHorizontal;
 
@@ -101,7 +101,7 @@ public class Player : Character
 
             if (move)
             {
-                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 3);
+                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 9);
                 Flip(direction);
                 HandleMovement(btnHorizontal);
             }
@@ -243,6 +243,8 @@ public class Player : Character
             }
 
             healthStat.CurrentVal -= currentReceiveDamage;
+            CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, false);
+
             if (!IsDead)
             {
                 MyAnimator.SetTrigger("damage");
@@ -337,6 +339,7 @@ public class Player : Character
             GameManager.Instance.CollectedCoins -= GameManager.Instance.MeleeCost;
             GameManager.Instance.MeleeLevel++;
             GameManager.Instance.MeleeCost += 2;
+            CombatTextManager.Instance.CreateText(transform.position, "Melee Damage + 6", Color.white, true);
         }
     }
     public void BtnUpgradePlayerRanged()
@@ -347,6 +350,7 @@ public class Player : Character
             GameManager.Instance.CollectedCoins -= GameManager.Instance.RangedCost;
             GameManager.Instance.RangedLevel++;
             GameManager.Instance.RangedCost += 2;
+            CombatTextManager.Instance.CreateText(transform.position, "Ranged Damage + 3", Color.white, true);
         }
     }
 
