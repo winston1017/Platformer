@@ -1,14 +1,15 @@
-# KNOCK THEM OFF! (On play store)
+# KNOCK THEM OFF! (In play store)
 
 This is a 2D platformer game project. Have been made open-source again on Nov, 2017.
-
--------------------------------------------------
-
 Controls are mobile friendly now as well as desktop friendly during dev mode.
 
 -------------------------------------------------
 
-TODO (PRIORITIZED):
+
+
+**TODO (PRIORITIZED):**
+
+NEW: SCROLLING DAMAGE TEXT (DONE)
 
 Melee and ranged attacks do different damage
 
@@ -16,27 +17,25 @@ Joystick control and re-arrange button layout
 
 Background change by score
 
-Sound fx
+Sound fx (DONE)
 
-Hit fx
+Hit fx (DONE)
 
-Death = lose score - > Game Over screen
+Death = lose score - > Game Over screen (DONE)
 
-Menu screen
+Menu screen (DONE)
 
-Exit/Restart button
+Exit/Restart button (DONE)
 
-Food drops
+Food drops (DONE)
 
-Smooth out animations, the "stun" right now is not what I want
+Smooth out animations, the "stun" right now is not what I want (DONE)
 
 Mass level increments (maybe?)
 
 Rewards (require a graphic designer for new sprites)
 
 Auto generate levels
-
-Menu screen
 
 Next level screen
 
@@ -52,7 +51,7 @@ Bosses
 
 
 
-DONE (PRIOR TO NOV 2017):
+**DONE (PRIOR TO NOV 2017):**
 
 Health bars and other power bars
 
