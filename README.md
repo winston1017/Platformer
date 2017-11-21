@@ -9,11 +9,15 @@ Controls are mobile friendly now as well as desktop friendly during dev mode.
 
 **TODO (PRIORITIZED):**
 
-NEW: SCROLLING DAMAGE TEXT (DONE)
+NEW: Scrolling damage text (DONE)
+
+NEW: Raining reward for knock offs (DONE)
+
+NEW: Jump mechanics improved (DONE)
 
 Melee and ranged attacks do different damage
 
-Joystick control and re-arrange button layout
+Joystick control and re-arrange button layout (DONE)
 
 Background change by score
 
