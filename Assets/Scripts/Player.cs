@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System;
+using UnityStandardAssets.CrossPlatformInput;
 
 public delegate void DeadEventHandler();
 
@@ -51,6 +52,14 @@ public class Player : Character
 
     private float btnHorizontal;
 
+    public AudioClip swingSound;
+    public AudioClip throwSound;
+    public AudioClip takeDmgSound;
+    public AudioClip jumpSound;
+    public AudioClip coinSound;
+    public AudioClip eatSound;
+    private AudioSource source;
+
     public Rigidbody2D MyRigidbody { get; set; }
     public bool Slide { get; set; }
     public bool Jump { get; set; }
@@ -77,6 +86,8 @@ public class Player : Character
         startPos = transform.position;
         spriteRenderer = GetComponent<SpriteRenderer>();
         MyRigidbody = GetComponent<Rigidbody2D>();
+        source = GetComponent<AudioSource>();
+        
     }
 
     void Update()
@@ -97,7 +108,8 @@ public class Player : Character
         if (!TakingDamage && !IsDead)
         {
             OnGround = IsGrounded();
-            float horizontal = Input.GetAxis("Horizontal");
+            //float horizontal = Input.GetAxis("Horizontal");
+            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
 
             if (move)
             {
@@ -136,11 +148,14 @@ public class Player : Character
         }
         if (Attack && !Slide && (OnGround || airControl))
         {
-            MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 2, MyRigidbody.velocity.y);
+            MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 1.8f, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.10))
+        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.03))
         {
+            MyRigidbody.velocity = new Vector2(0, 0);
             MyRigidbody.AddForce(new Vector2(0, jumpForce));
+
+            source.PlayOneShot(jumpSound, 0.13F);
         }
 
         MyAnimator.SetFloat("speed", Mathf.Abs(horizontal));
@@ -236,14 +251,18 @@ public class Player : Character
             if (currentDmgSrc == "erd")
             {
                 currentReceiveDamage = GameManager.Instance.EnemyRangedDmg;
+
+                source.PlayOneShot(takeDmgSound, 0.2F);
             }
             if (currentDmgSrc == "emd")
             {
                 currentReceiveDamage = GameManager.Instance.EnemyMeleeDmg;
+
+                source.PlayOneShot(takeDmgSound, 0.2F);
             }
 
             healthStat.CurrentVal -= currentReceiveDamage;
-            CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, false);
+            CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false);
 
             if (!IsDead)
             {
@@ -275,7 +294,7 @@ public class Player : Character
 
         GameManager.Instance.DeathCount++;
         GameManager.Instance.CollectedCoins -= 10;
-        GameManager.Instance.KillCount -= 3;
+        GameManager.Instance.KillCount -= 10;
     }
 
     public void BtnJump()
@@ -322,11 +341,15 @@ public class Player : Character
         {
             GameManager.Instance.CollectedCoins++; //future: coinval
             Destroy(other.gameObject);
+            CombatTextManager.Instance.CreateText(transform.position, "+1 G", Color.yellow, false);
+            source.PlayOneShot(coinSound, 0.38F);
         }
         if (other.gameObject.tag == "Burger")
         {
             healthStat.CurrentVal += 20; //future: coinval
             Destroy(other.gameObject);
+            CombatTextManager.Instance.CreateText(transform.position, "+20 HP", Color.green, false);
+            source.PlayOneShot(eatSound, 0.2F);
         }
     }
 
@@ -338,8 +361,8 @@ public class Player : Character
             GameManager.Instance.PlayerMeleeDmg += 6;
             GameManager.Instance.CollectedCoins -= GameManager.Instance.MeleeCost;
             GameManager.Instance.MeleeLevel++;
-            GameManager.Instance.MeleeCost += 2;
-            CombatTextManager.Instance.CreateText(transform.position, "Melee Damage + 6", Color.white, true);
+            GameManager.Instance.MeleeCost  = Mathf.FloorToInt(GameManager.Instance.MeleeCost * 1.18f);
+            CombatTextManager.Instance.CreateText(transform.position, "Melee +6", Color.blue, false);
         }
     }
     public void BtnUpgradePlayerRanged()
@@ -349,10 +372,18 @@ public class Player : Character
             GameManager.Instance.PlayerRangedDmg += 3;
             GameManager.Instance.CollectedCoins -= GameManager.Instance.RangedCost;
             GameManager.Instance.RangedLevel++;
-            GameManager.Instance.RangedCost += 2;
-            CombatTextManager.Instance.CreateText(transform.position, "Ranged Damage + 3", Color.white, true);
+            GameManager.Instance.RangedCost = Mathf.FloorToInt(GameManager.Instance.RangedCost * 1.18f);
+            CombatTextManager.Instance.CreateText(transform.position, "Ranged +3", Color.blue, false);
         }
     }
 
+    public void PlaySwingAtk()
+    {
+        source.PlayOneShot(swingSound, 0.68F);
+    }
+    public void PlayThrowAtk()
+    {
+        source.PlayOneShot(throwSound, 0.38F);
+    }
 }
 

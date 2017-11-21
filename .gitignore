@@ -1,6 +1,10 @@
 # =============== #
 # Unity generated #
 # =============== #
+
+Assets/Buttons/
+Assets/Sprites/
+Library/metadata/
 [Tt]emp/
 [Oo]bj/
 [Bb]uild

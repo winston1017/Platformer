@@ -7,7 +7,7 @@ public class RangedState : IEnemyState
     private Enemy enemy;
 
     private float throwTimer;
-    private float throwCooldown = 3;
+    private float throwCooldown = 3.8f;
     private bool canThrow = true;
 
     public void Enter(Enemy enemy)

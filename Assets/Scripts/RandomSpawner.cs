@@ -8,8 +8,8 @@ public class RandomSpawner : MonoBehaviour
     //Spawn this object
     public GameObject spawnObject;
 
-    public float maxTime = 50;
-    public float minTime = 20;
+    public float maxTime = 60;
+    public float minTime = 50;
 
     //current time
     private float time;
