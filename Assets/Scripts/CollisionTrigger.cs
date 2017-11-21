@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class CollisionTrigger : MonoBehaviour {
-
 	
-
 	[SerializeField]
 	private BoxCollider2D platformCollider;
 	[SerializeField]

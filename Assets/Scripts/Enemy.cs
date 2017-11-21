@@ -34,9 +34,18 @@ public class Enemy : Character
 
     private bool gotCrit;
 
+    //Fall off respawn timer count
+    private float time;
+    private bool fellOff;
+    private bool rained = false;
+
     public AudioClip swingSound;
     public AudioClip takeMeleeSound;
     public AudioClip takeRangedSound;
+
+    public AudioClip coinRain;
+    public AudioClip drownSound;
+
     private AudioSource source;
 
     public GameObject Target { get; set; }
@@ -47,7 +56,9 @@ public class Enemy : Character
         {
             if (Target != null)
             {
-                return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
+
+                return (Mathf.Abs(transform.position.x-Target.transform.position.x)) <= meleeRange;
+                //return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
             }
             return false;
         }
@@ -60,7 +71,9 @@ public class Enemy : Character
         {
             if (Target != null)
             {
-                return (Vector2.Distance(transform.position, Target.transform.position) <= chaseRangeHi) && (Vector2.Distance(transform.position, Target.transform.position) >= chaseRangeLo);
+
+                return (Mathf.Abs(transform.position.x - Target.transform.position.x) <= chaseRangeHi) && (Mathf.Abs(transform.position.x - Target.transform.position.x) <= chaseRangeLo);
+                //return (Vector2.Distance(transform.position, Target.transform.position) <= chaseRangeHi) && (Vector2.Distance(transform.position, Target.transform.position) >= chaseRangeLo);
             }
             return false;
         }
@@ -72,7 +85,8 @@ public class Enemy : Character
         {
             if (Target != null)
             {
-                return Vector2.Distance(transform.position, Target.transform.position) <= throwRange;
+                // return Vector2.Distance(transform.position, Target.transform.position) <= throwRange;
+                return (Mathf.Abs(transform.position.x - Target.transform.position.x)) <= throwRange;
             }
             return false;
         }
@@ -111,41 +125,70 @@ public class Enemy : Character
 
             if (xDirection < 0 && facingRight || xDirection > 0 && !facingRight)
             {
+                //FIX FOR SPINNING ENEMIES
+                if (Vector2.Distance(transform.position, new Vector2(transform.position.x, Target.transform.position.y)) > 5)
+                {
+                    Target = null;
+                }
                 ChangeDirection();
             }
-            //FIX FOR SPINNING ENEMIES
-            if (Vector2.Distance(transform.position, new Vector2(transform.position.x, Target.transform.position.y)) > 5)
-            {
-                Target = null;
-            }
+            
         }
     }
 
     void Update()
     {
-
         if (!IsDead)
         {
             if (!TakingDamage)
             {
                 if (transform.position.y <= -14f) //every time it updates, enemy position is still -14f, so it rains coins like crazy
                 {
-                    GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
-                    Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-
-                    GameManager.Instance.KillCount += Mathf.FloorToInt(monsterLevel / 1.5f);
-
-                    for (int i = 0; i < (skyMoneyDropNum + Mathf.FloorToInt(monsterLevel / 1.5f)); i++)
+                    //Double lock
+                    if (fellOff == false)
                     {
-                        GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
-                        Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                        source.PlayOneShot(drownSound, 0.5F);
+                        fellOff = true;
+                        RainingCollectibles(fellOff);
                     }
 
-                    Death();
+                    //Respawn Timer for falling off use
+                    time += Time.deltaTime;
+                    if (time >= 12)
+                    {
+                        Death();
+                    }
                 }
                 currentState.Execute();
             }
             LookAtTarget();
+        }
+    }
+
+    void RainingCollectibles(bool fellOff)
+    {
+        if (fellOff && !rained)
+        {
+            rained = true;
+
+            CombatTextManager.Instance.CreateBigText(new Vector3 (GameObject.Find("Player").transform.position.x, GameObject.Find("Player").transform.position.y + 1.5f, GameObject.Find("Player").transform.position.z), "KNOCKED OFF", Color.red, true);
+            source.PlayOneShot(coinRain, 0.5F);
+
+            //Rain One burger
+            GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+            Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+            //Increase score
+            GameManager.Instance.KillCount += Mathf.FloorToInt(monsterLevel / 1.5f);
+            GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
+            //GameManager.Instance.NumKills++;
+            //Rain coins
+            for (int i = 0; i < (skyMoneyDropNum + Mathf.FloorToInt(monsterLevel / 1.5f)); i++)
+            {
+                GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+                Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+            }
+            //Unlock
+            fellOff = !fellOff;
         }
     }
 
@@ -163,6 +206,7 @@ public class Enemy : Character
     {
         if (!Attack)
         {
+            //Edge detection
             if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
             {
                 MyAnimator.SetFloat("speed", 1);
@@ -172,7 +216,6 @@ public class Enemy : Character
             {
                 ChangeDirection();
             }
-
         }
     }
 
@@ -185,6 +228,14 @@ public class Enemy : Character
     {
         base.OnTriggerEnter2D(other);
         currentState.OnTriggerEnter(other);
+
+
+        //if (other.tag == "Edge" && Target != null)
+        //{
+        //    Debug.Log("hello");
+        //    Target = null;
+        //    ChangeDirection();
+        //}
     }
 
     public override IEnumerator TakeDamage(string currentDmgSrc)
@@ -201,8 +252,8 @@ public class Enemy : Character
             source.PlayOneShot(takeMeleeSound, 0.3F);
         }
 
-        //Critical Hit 10%
-        if (UnityEngine.Random.Range(1, 15) == 6)
+        //Critical Hit %
+        if (UnityEngine.Random.Range(1, 13) == 2)
         {
             currentReceiveDamage = Mathf.FloorToInt(currentReceiveDamage * 1.5f);
             gotCrit = true;
@@ -223,6 +274,7 @@ public class Enemy : Character
         //Quick way for critical hit text, FUTURE: re-order to truncate code
         if (!IsDead)
         {
+            MyAnimator.SetTrigger("damage");
             if (!gotCrit)
             {
                 CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false);
@@ -231,13 +283,13 @@ public class Enemy : Character
             {
                 CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, true);
             }
-            MyAnimator.SetTrigger("damage");
         }
         else
         {
-
             MyAnimator.SetTrigger("die");
             GameManager.Instance.KillCount += (monsterLevel * 2 - 1);
+            //GameManager.Instance.NumKills++;
+            GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
             if (!coinDropped)
             {
                 if (!gotCrit)
@@ -259,6 +311,7 @@ public class Enemy : Character
                     GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
                     Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
                 }
+                //this.tag = "EnemyDead";
             }
             coinDropped = true;
             yield return null;
@@ -269,6 +322,10 @@ public class Enemy : Character
 
     public override void Death()
     {
+        fellOff = false;
+        rained = false;
+        time = 0;
+        //this.tag = "Enemy";
         //Fix for dead body dropping coins
         coinDropped = false;
         MyAnimator.SetTrigger("idle");
@@ -276,10 +333,10 @@ public class Enemy : Character
         healthStat.MaxVal += 10;
         healthStat.CurrentVal = healthStat.MaxVal;
         monsterLevel++;
-
-        transform.position = new Vector3(startPos.x + UnityEngine.Random.Range(3.0f, 6.0f), startPos.y, startPos.z);
         healthCanvas.enabled = false;
         Target = null;
+
+        transform.position = new Vector3(startPos.x + UnityEngine.Random.Range(3.0f, 6.0f), startPos.y, startPos.z);
     }
 
     //ChangeDirection in Enemy
@@ -302,8 +359,9 @@ public class Enemy : Character
         //Pits the health bar back in the correct position.
         tmp.position = pos;
     }
+    
 
-    public void PlaySwingAtk()
+        public void PlaySwingAtk()
     {
         source.PlayOneShot(swingSound, 0.68F);
     }
@@ -311,5 +369,4 @@ public class Enemy : Character
     {
         source.PlayOneShot(swingSound, 0.28F);
     }
-
 }

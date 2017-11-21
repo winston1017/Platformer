@@ -9,6 +9,8 @@ public class CombatTextManager : MonoBehaviour {
 
     public GameObject textPrefab;
 
+    public GameObject bigTextPrefab;
+
     public RectTransform canvasTransform;
 
     public float speed;
@@ -34,6 +36,26 @@ public class CombatTextManager : MonoBehaviour {
         sct.transform.SetParent(canvasTransform);
         sct.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         sct.GetComponent<CombatText>().Initialize(speed, direction, fadeTime, crit);
+        sct.GetComponent<Text>().text = text;
+        sct.GetComponent<Text>().color = color;
+    }
+
+    public void CreateBigText(Vector3 position, string text, Color color, bool crit)
+    {
+        GameObject sct = (GameObject)Instantiate(bigTextPrefab, position, Quaternion.identity);
+        sct.transform.SetParent(canvasTransform);
+        sct.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 2f, crit);
+        sct.GetComponent<Text>().text = text;
+        sct.GetComponent<Text>().color = color;
+    }
+
+    public void CreateAnnounceText(Vector3 position, string text, Color color, bool crit)
+    {
+        GameObject sct = (GameObject)Instantiate(bigTextPrefab, position, Quaternion.identity);
+        sct.transform.SetParent(canvasTransform);
+        sct.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 5f, crit);
         sct.GetComponent<Text>().text = text;
         sct.GetComponent<Text>().color = color;
     }

@@ -4,17 +4,18 @@ using UnityEngine.SceneManagement;
 using UnityEngine;
 
 
-public class PauseMenu : MonoBehaviour {
-    
+public class PauseMenu : MonoBehaviour
+{
+
     public bool isPaused;
     public bool muted = false;
 
     public GameObject pauseMenuCanvas;
-    
-	// Update is called once per frame
-	void Update () {
-		
-        
+    public GameObject endMenuCanvas;
+
+    // Update is called once per frame
+    void Update()
+    {
     }
 
     public void Resume()
@@ -24,13 +25,16 @@ public class PauseMenu : MonoBehaviour {
         {
             pauseMenuCanvas.SetActive(false);
             Time.timeScale = 1f;
-            GameObject.Find("BGM1").GetComponent<AudioSource>().UnPause();
+            if (!muted)
+            {
+                GameObject.Find("BGM1").GetComponent<AudioSource>().UnPause();
+            }
         }
     }
 
     public void QuitGame()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("mainMenu");
         Time.timeScale = 1f;
     }
 
@@ -47,11 +51,23 @@ public class PauseMenu : MonoBehaviour {
         {
             pauseMenuCanvas.SetActive(true);
             Time.timeScale = 0f;
-            GameObject.Find("BGM1").GetComponent<AudioSource>().Pause();
+            if (muted)
+            {
+                GameObject.Find("BGM1").GetComponent<AudioSource>().Pause();
+            }
         }
     }
 
-    
+    public void BtnEnd()
+    {
+        isPaused = true;
+        if (isPaused)
+        {
+            endMenuCanvas.SetActive(true);
+            Time.timeScale = 0f;
+        }
+    }
+
     public void ButtonMute()
     {
         muted = !muted;
@@ -64,7 +80,7 @@ public class PauseMenu : MonoBehaviour {
             GameObject.Find("BGM1").GetComponent<AudioSource>().UnPause();
         }
     }
-    
+
 }
 
 

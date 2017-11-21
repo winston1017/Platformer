@@ -12,7 +12,7 @@ public class IdleState : IEnemyState
 
     public void Enter(Enemy enemy)
     {
-        idleDuration = UnityEngine.Random.Range(1, 8);
+        idleDuration = UnityEngine.Random.Range(1, 6);
         this.enemy = enemy;
     }
 

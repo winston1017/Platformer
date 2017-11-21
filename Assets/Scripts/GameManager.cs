@@ -6,6 +6,8 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour {
 
     private static GameManager instance;
+    
+    public float numKills = 0; //use for increasing enemy dmg
 
     [SerializeField]
     private float playerRangedDmg = 10;
@@ -103,7 +105,7 @@ public class GameManager : MonoBehaviour {
 
         set
         {
-            deathTxt.text = value.ToString();
+            deathTxt.text = value.ToString() + " / 5";
             deathCount = value;
         }
     }
@@ -230,6 +232,19 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    public float NumKills
+    {
+        get
+        {
+            return numKills;
+        }
+
+        set
+        {
+            numKills = value;
+        }
+    }
+
     // Use this for initialization
     void Start()
     {
@@ -240,7 +255,7 @@ public class GameManager : MonoBehaviour {
 
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         if (killCount > highScore)
         {
@@ -250,5 +265,16 @@ public class GameManager : MonoBehaviour {
             PlayerPrefs.SetInt(highScoreKey, highScore);
             PlayerPrefs.Save();
         }
+
+        if (deathCount > 3)
+        {
+
+        }
+
+        if (killCount > 500)
+        {
+
+        }
+        
     }
 }

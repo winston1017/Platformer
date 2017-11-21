@@ -9,7 +9,6 @@ public class Player : Character
 {
 
     private static Player instance;
-
     public event DeadEventHandler Dead;
 
     public static Player Instance
@@ -50,7 +49,9 @@ public class Player : Character
     private bool move;
     private float currentReceiveDamage;
 
-    private float btnHorizontal;
+    //private float btnHorizontal;
+
+    private Vector2 startPos;
 
     public AudioClip swingSound;
     public AudioClip throwSound;
@@ -77,27 +78,91 @@ public class Player : Character
         }
     }
 
-    private Vector2 startPos;
+    //Improved Jump
+    public float fallMultiplier = 2.5f;
+    public float lowJumpMultiplier = 1.55f;
+    public bool btnJumping;
+    public float time;
+    public bool announceDrown;
 
+    [Range(1, 10)]
+    public float jumpVelocity;
 
     public override void Start()
     {
+        time = 0;
+        announceDrown = false;
         base.Start();
         startPos = transform.position;
         spriteRenderer = GetComponent<SpriteRenderer>();
         MyRigidbody = GetComponent<Rigidbody2D>();
         source = GetComponent<AudioSource>();
-        
     }
+
+    //void Update()
+    //{
+    //    //if (!TakingDamage && !IsDead)
+    //    if (!IsDead)
+    //    {
+    //        if (transform.position.y <= -14f)
+    //        {
+    //            Death();
+    //        }
+    //        HandleInput();
+    //    }
+    //}
+
+    //// Update is called once per frame
+    //void FixedUpdate()
+    //{
+    //    if (!IsDead)
+    //    {
+    //        if (this.GetComponent<Animator>().GetBool("land") == true && MyRigidbody.velocity.y < 0)
+    //        {
+    //            this.GetComponent<Animator>().SetBool("land", false);
+    //        }
+    //        OnGround = IsGrounded();
+    //        float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+    //        HandleMovement(horizontal);
+    //        Flip(horizontal);
+    //        HandleLayers();
+    //    }
+    //}
 
     void Update()
     {
-        if (!TakingDamage && !IsDead)
+        //if (!TakingDamage && !IsDead)
+        if (!IsDead)
         {
             if (transform.position.y <= -14f)
             {
-                Death();
+                if (announceDrown == false)
+                {
+                    CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Fell :(" +"\n Respawning...", Color.cyan, true);
+                    announceDrown = true;
+                }
+                time += Time.deltaTime;
+                if (time >= 5)
+                {
+                    Death();
+                }
             }
+            if (this.GetComponent<Animator>().GetBool("land") == true && MyRigidbody.velocity.y < 0)
+            {
+                this.GetComponent<Animator>().SetBool("land", false);
+                //Debug.Log("land false");
+
+                if (OnGround)
+                {
+                    //Debug.Log("-> on ground so set velocity y to 0");
+                    MyRigidbody.velocity = new Vector2(MyRigidbody.velocity.x, 0);
+                }
+            }
+            OnGround = IsGrounded();
+            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+            HandleMovement(horizontal);
+            Flip(horizontal);
+            HandleLayers();
             HandleInput();
         }
     }
@@ -105,26 +170,6 @@ public class Player : Character
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (!TakingDamage && !IsDead)
-        {
-            OnGround = IsGrounded();
-            //float horizontal = Input.GetAxis("Horizontal");
-            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-
-            if (move)
-            {
-                this.btnHorizontal = Mathf.Lerp(btnHorizontal, direction, Time.deltaTime * 9);
-                Flip(direction);
-                HandleMovement(btnHorizontal);
-            }
-            else
-            {
-                HandleMovement(horizontal);
-                Flip(horizontal);
-            }
-            HandleLayers();
-        }
-
     }
 
     public void OnDead()
@@ -150,14 +195,15 @@ public class Player : Character
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 1.8f, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && (MyRigidbody.velocity.y <= 0 || MyRigidbody.velocity.y > -0.03))
+        if (Jump && OnGround && (MyRigidbody.velocity.y == 0)) // || MyRigidbody.velocity.y > -8.8
         {
-            MyRigidbody.velocity = new Vector2(0, 0);
-            MyRigidbody.AddForce(new Vector2(0, jumpForce));
-
+            MyRigidbody.velocity = Vector2.up * jumpVelocity;
             source.PlayOneShot(jumpSound, 0.13F);
         }
-
+        if (Jump && OnGround && (MyRigidbody.velocity.y < 0)) // || MyRigidbody.velocity.y > -8.8
+        {
+            Debug.Log("tried to jump but velocity Y is < 0");
+        }
         MyAnimator.SetFloat("speed", Mathf.Abs(horizontal));
     }
     private void HandleInput()
@@ -179,8 +225,9 @@ public class Player : Character
             MyAnimator.SetTrigger("throw");
         }
 
-    }
 
+    }
+    //Call changedirection by movement
     private void Flip(float horizontal)
     {
         if (!Slide)
@@ -194,7 +241,7 @@ public class Player : Character
 
     private bool IsGrounded()
     {
-        if (MyRigidbody.velocity.y <= 0)
+        if (MyRigidbody.velocity.y <= 0) // works when it is <= 0
         {
             foreach (Transform point in groundPoints)
             {
@@ -251,13 +298,11 @@ public class Player : Character
             if (currentDmgSrc == "erd")
             {
                 currentReceiveDamage = GameManager.Instance.EnemyRangedDmg;
-
                 source.PlayOneShot(takeDmgSound, 0.2F);
             }
             if (currentDmgSrc == "emd")
             {
                 currentReceiveDamage = GameManager.Instance.EnemyMeleeDmg;
-
                 source.PlayOneShot(takeDmgSound, 0.2F);
             }
 
@@ -278,15 +323,17 @@ public class Player : Character
             {
                 MyAnimator.SetLayerWeight(1, 0);
                 MyAnimator.SetTrigger("die");
+                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Died x_x" + "\n Respawning...", Color.cyan, true);
             }
-
             yield return null;
-
         }
     }
 
     public override void Death()
     {
+        time = 0;
+        announceDrown = false;
+
         MyRigidbody.velocity = Vector2.zero;
         MyAnimator.SetTrigger("idle");
         healthStat.CurrentVal = healthStat.MaxVal;
@@ -297,9 +344,21 @@ public class Player : Character
         GameManager.Instance.KillCount -= 10;
     }
 
-    public void BtnJump()
+    //public void BtnJump()
+    //{
+    //    MyAnimator.SetTrigger("jump");
+    //    Debug.Log("btnjump pressed, bool true");
+    //}
+
+    public void BtnJumpEnter()
     {
         MyAnimator.SetTrigger("jump");
+        btnJumping = true;
+    }
+
+    public void BtnJumpExit()
+    {
+        btnJumping = false;
     }
 
     public void BtnAttack()
@@ -321,18 +380,18 @@ public class Player : Character
         MyAnimator.SetTrigger("throw");
     }
 
-    public void BtnMove(float direction)
-    {
-        this.direction = direction;
-        this.move = true;
-    }
+    //public void BtnMove(float direction)
+    //{
+    //    this.direction = direction;
+    //    this.move = true;
+    //}
 
-    public void BtnStopMove()
-    {
-        this.direction = 0;
-        this.btnHorizontal = 0;
-        this.move = false;
-    }
+    //public void BtnStopMove()
+    //{
+    //    this.direction = 0;
+    //    this.btnHorizontal = 0;
+    //    this.move = false;
+    //}
 
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -353,16 +412,15 @@ public class Player : Character
         }
     }
 
-
     public void BtnUpgradePlayerMelee()
     {
         if (GameManager.Instance.CollectedCoins >= GameManager.Instance.MeleeCost)
         {
-            GameManager.Instance.PlayerMeleeDmg += 6;
+            GameManager.Instance.PlayerMeleeDmg += 5;
             GameManager.Instance.CollectedCoins -= GameManager.Instance.MeleeCost;
             GameManager.Instance.MeleeLevel++;
-            GameManager.Instance.MeleeCost  = Mathf.FloorToInt(GameManager.Instance.MeleeCost * 1.18f);
-            CombatTextManager.Instance.CreateText(transform.position, "Melee +6", Color.blue, false);
+            GameManager.Instance.MeleeCost = Mathf.FloorToInt(GameManager.Instance.MeleeCost * 1.23f);
+            CombatTextManager.Instance.CreateText(transform.position, "Melee ↑5", Color.blue, false);
         }
     }
     public void BtnUpgradePlayerRanged()
@@ -372,8 +430,8 @@ public class Player : Character
             GameManager.Instance.PlayerRangedDmg += 3;
             GameManager.Instance.CollectedCoins -= GameManager.Instance.RangedCost;
             GameManager.Instance.RangedLevel++;
-            GameManager.Instance.RangedCost = Mathf.FloorToInt(GameManager.Instance.RangedCost * 1.18f);
-            CombatTextManager.Instance.CreateText(transform.position, "Ranged +3", Color.blue, false);
+            GameManager.Instance.RangedCost = Mathf.FloorToInt(GameManager.Instance.RangedCost * 1.23f);
+            CombatTextManager.Instance.CreateText(transform.position, "Ranged ↑3", Color.blue, false);
         }
     }
 
