@@ -84,6 +84,8 @@ public class Player : Character
     public bool btnJumping;
     public float time;
     public bool announceDrown;
+    public bool wasGrounded;
+    public bool cameraDisabler;
 
     [Range(1, 10)]
     public float jumpVelocity;
@@ -99,38 +101,11 @@ public class Player : Character
         source = GetComponent<AudioSource>();
     }
 
-    //void Update()
-    //{
-    //    //if (!TakingDamage && !IsDead)
-    //    if (!IsDead)
-    //    {
-    //        if (transform.position.y <= -14f)
-    //        {
-    //            Death();
-    //        }
-    //        HandleInput();
-    //    }
-    //}
-
-    //// Update is called once per frame
-    //void FixedUpdate()
-    //{
-    //    if (!IsDead)
-    //    {
-    //        if (this.GetComponent<Animator>().GetBool("land") == true && MyRigidbody.velocity.y < 0)
-    //        {
-    //            this.GetComponent<Animator>().SetBool("land", false);
-    //        }
-    //        OnGround = IsGrounded();
-    //        float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-    //        HandleMovement(horizontal);
-    //        Flip(horizontal);
-    //        HandleLayers();
-    //    }
-    //}
 
     void Update()
     {
+        OnGround = IsGrounded();
+
         //if (!TakingDamage && !IsDead)
         if (!IsDead)
         {
@@ -138,7 +113,16 @@ public class Player : Character
             {
                 if (announceDrown == false)
                 {
-                    CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Fell :(" +"\n Respawning...", Color.cyan, true);
+                    cameraDisabler = true;
+                    MyRigidbody.velocity = new Vector2(0, 0);
+                    GameManager.Instance.DeathCount++;
+                    GameManager.Instance.CollectedCoins -= 10;
+                    GameManager.Instance.KillCount -= 10;
+
+                    if (GameManager.Instance.DeathCount < 3)
+                    {
+                        CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Fell :(" + "\n Respawning...", Color.cyan, true, 5f, true);
+                    }
                     announceDrown = true;
                 }
                 time += Time.deltaTime;
@@ -147,23 +131,22 @@ public class Player : Character
                     Death();
                 }
             }
-            if (this.GetComponent<Animator>().GetBool("land") == true && MyRigidbody.velocity.y < 0)
+
+            if (this.GetComponent<Animator>().GetBool("land") == true && MyRigidbody.velocity.y != 0)
             {
                 this.GetComponent<Animator>().SetBool("land", false);
-                //Debug.Log("land false");
-
-                if (OnGround)
-                {
-                    //Debug.Log("-> on ground so set velocity y to 0");
-                    MyRigidbody.velocity = new Vector2(MyRigidbody.velocity.x, 0);
-                }
             }
             OnGround = IsGrounded();
-            float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
-            HandleMovement(horizontal);
-            Flip(horizontal);
-            HandleLayers();
-            HandleInput();
+            
+            if (!cameraDisabler)
+            {
+                float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+                HandleMovement(horizontal);
+                Flip(horizontal);
+                HandleLayers();
+                HandleInput();
+                //wasGrounded = IsGrounded();
+            }
         }
     }
 
@@ -187,6 +170,12 @@ public class Player : Character
         {
             MyAnimator.SetBool("land", true);
         }
+        // causes unable to jump when tapping fast //if (Jump && OnGround && (MyRigidbody.velocity.y == 0)) // || MyRigidbody.velocity.y > -8.8
+        if (Jump && OnGround) // || MyRigidbody.velocity.y > -8.8
+        {
+            MyRigidbody.velocity = Vector2.up * jumpVelocity;
+            source.PlayOneShot(jumpSound, 0.13F);
+        }
         if (!Attack && !Slide && (OnGround || airControl)) // add one for aircontrool and in air and slow it down
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed, MyRigidbody.velocity.y);
@@ -195,14 +184,9 @@ public class Player : Character
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 1.8f, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && (MyRigidbody.velocity.y == 0)) // || MyRigidbody.velocity.y > -8.8
-        {
-            MyRigidbody.velocity = Vector2.up * jumpVelocity;
-            source.PlayOneShot(jumpSound, 0.13F);
-        }
         if (Jump && OnGround && (MyRigidbody.velocity.y < 0)) // || MyRigidbody.velocity.y > -8.8
         {
-            Debug.Log("tried to jump but velocity Y is < 0");
+            Debug.Log("tried to jump but velocity Y is < 0 = " + MyRigidbody.velocity.y);
         }
         MyAnimator.SetFloat("speed", Mathf.Abs(horizontal));
     }
@@ -246,7 +230,6 @@ public class Player : Character
             foreach (Transform point in groundPoints)
             {
                 Collider2D[] colliders = Physics2D.OverlapCircleAll(point.position, groundRadius, whatIsGround);
-
                 for (int i = 0; i < colliders.Length; i++)
                 {
                     if (colliders[i].gameObject != gameObject)
@@ -307,7 +290,7 @@ public class Player : Character
             }
 
             healthStat.CurrentVal -= currentReceiveDamage;
-            CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false);
+            CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false, 0f, true);
 
             if (!IsDead)
             {
@@ -323,7 +306,11 @@ public class Player : Character
             {
                 MyAnimator.SetLayerWeight(1, 0);
                 MyAnimator.SetTrigger("die");
-                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Died x_x" + "\n Respawning...", Color.cyan, true);
+                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "You Died x_x" + "\n Respawning...", Color.cyan, true, 5f, true);
+
+                GameManager.Instance.DeathCount++;
+                GameManager.Instance.CollectedCoins -= 10;
+                GameManager.Instance.KillCount -= 10;
             }
             yield return null;
         }
@@ -333,22 +320,12 @@ public class Player : Character
     {
         time = 0;
         announceDrown = false;
-
+        cameraDisabler = false;
         MyRigidbody.velocity = Vector2.zero;
         MyAnimator.SetTrigger("idle");
         healthStat.CurrentVal = healthStat.MaxVal;
         transform.position = startPos;
-
-        GameManager.Instance.DeathCount++;
-        GameManager.Instance.CollectedCoins -= 10;
-        GameManager.Instance.KillCount -= 10;
     }
-
-    //public void BtnJump()
-    //{
-    //    MyAnimator.SetTrigger("jump");
-    //    Debug.Log("btnjump pressed, bool true");
-    //}
 
     public void BtnJumpEnter()
     {
@@ -368,7 +345,6 @@ public class Player : Character
 
     public void BtnSlide()
     {
-        //if (MyRigidbody.velocity.x != 0 && MyRigidbody.velocity.y == 0)
         if (MyRigidbody.velocity.y == 0)
         {
             MyAnimator.SetTrigger("slide");
@@ -380,18 +356,6 @@ public class Player : Character
         MyAnimator.SetTrigger("throw");
     }
 
-    //public void BtnMove(float direction)
-    //{
-    //    this.direction = direction;
-    //    this.move = true;
-    //}
-
-    //public void BtnStopMove()
-    //{
-    //    this.direction = 0;
-    //    this.btnHorizontal = 0;
-    //    this.move = false;
-    //}
 
 
     private void OnCollisionEnter2D(Collision2D other)
@@ -400,14 +364,14 @@ public class Player : Character
         {
             GameManager.Instance.CollectedCoins++; //future: coinval
             Destroy(other.gameObject);
-            CombatTextManager.Instance.CreateText(transform.position, "+1 G", Color.yellow, false);
+            CombatTextManager.Instance.CreateText(transform.position, "+1 G", Color.yellow, false, 0f, true);
             source.PlayOneShot(coinSound, 0.38F);
         }
         if (other.gameObject.tag == "Burger")
         {
             healthStat.CurrentVal += 20; //future: coinval
             Destroy(other.gameObject);
-            CombatTextManager.Instance.CreateText(transform.position, "+20 HP", Color.green, false);
+            CombatTextManager.Instance.CreateText(transform.position, "+20 HP", Color.green, false, 0f, true);
             source.PlayOneShot(eatSound, 0.2F);
         }
     }
@@ -420,7 +384,7 @@ public class Player : Character
             GameManager.Instance.CollectedCoins -= GameManager.Instance.MeleeCost;
             GameManager.Instance.MeleeLevel++;
             GameManager.Instance.MeleeCost = Mathf.FloorToInt(GameManager.Instance.MeleeCost * 1.23f);
-            CombatTextManager.Instance.CreateText(transform.position, "Melee ↑5", Color.blue, false);
+            CombatTextManager.Instance.CreateText(transform.position, "Melee ↑5", Color.blue, false, 0f, true);
         }
     }
     public void BtnUpgradePlayerRanged()
@@ -431,7 +395,7 @@ public class Player : Character
             GameManager.Instance.CollectedCoins -= GameManager.Instance.RangedCost;
             GameManager.Instance.RangedLevel++;
             GameManager.Instance.RangedCost = Mathf.FloorToInt(GameManager.Instance.RangedCost * 1.23f);
-            CombatTextManager.Instance.CreateText(transform.position, "Ranged ↑3", Color.blue, false);
+            CombatTextManager.Instance.CreateText(transform.position, "Ranged ↑3", Color.blue, false, 0f, true);
         }
     }
 

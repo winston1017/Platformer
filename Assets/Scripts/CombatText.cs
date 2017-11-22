@@ -11,7 +11,7 @@ public class CombatText : MonoBehaviour {
 
     public AnimationClip critAnim;
     private bool crit;
-	
+
 	// Update is called once per frame
 	void Update () {
         if (!crit)

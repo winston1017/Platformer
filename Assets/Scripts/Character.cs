@@ -70,7 +70,7 @@ public abstract class Character : MonoBehaviour
     public virtual void ChangeDirection()
     {
         facingRight = !facingRight;
-        transform.localScale = new Vector3(transform.localScale.x * -1, 1, 1);
+        transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
     }
 
     public virtual void ThrowKnife(int value)

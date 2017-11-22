@@ -29,8 +29,8 @@ public class CombatTextManager : MonoBehaviour {
             return instance;
         }
     }
-	
-    public void CreateText(Vector3 position, string text, Color color, bool crit)
+
+    public void CreateText(Vector3 position, string text, Color color, bool crit, float fadeTimeArg, bool useFadeTimeArg)
     {
         GameObject sct = (GameObject)Instantiate(textPrefab, position, Quaternion.identity);
         sct.transform.SetParent(canvasTransform);
@@ -40,22 +40,36 @@ public class CombatTextManager : MonoBehaviour {
         sct.GetComponent<Text>().color = color;
     }
 
-    public void CreateBigText(Vector3 position, string text, Color color, bool crit)
+    public void CreateBigText(Vector3 position, string text, Color color, bool crit, float fadeTimeArg, bool useFadeTimeArg)
     {
         GameObject sct = (GameObject)Instantiate(bigTextPrefab, position, Quaternion.identity);
         sct.transform.SetParent(canvasTransform);
         sct.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 2f, crit);
+        if (useFadeTimeArg)
+        {
+            sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), fadeTimeArg, crit);
+        }
+        else
+        {
+            sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 2f, crit);
+        }
         sct.GetComponent<Text>().text = text;
         sct.GetComponent<Text>().color = color;
     }
 
-    public void CreateAnnounceText(Vector3 position, string text, Color color, bool crit)
+    public void CreateAnnounceText(Vector3 position, string text, Color color, bool crit, float fadeTimeArg, bool useFadeTimeArg)
     {
         GameObject sct = (GameObject)Instantiate(bigTextPrefab, position, Quaternion.identity);
         sct.transform.SetParent(canvasTransform);
         sct.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 5f, crit);
+        if (useFadeTimeArg)
+        {
+            sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), fadeTimeArg, crit);
+        }
+        else
+        {
+            sct.GetComponent<CombatText>().Initialize(speed, new Vector3(0, 0, 0), 5f, crit);
+        }
         sct.GetComponent<Text>().text = text;
         sct.GetComponent<Text>().color = color;
     }

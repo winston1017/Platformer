@@ -19,9 +19,9 @@ public class LandBehavior : StateMachineBehaviour
         {
             Player.Instance.MyRigidbody.velocity += Vector2.up * Physics2D.gravity.y * (Player.Instance.fallMultiplier - 1) * Time.deltaTime;
         }
-        if (Player.Instance.OnGround)
+        else if (Player.Instance.OnGround)
         {
-            Debug.Log("LandBehave");
+            //Debug.Log("LandBehave");
             animator.SetBool("land", false);
             animator.ResetTrigger("jump");
         }

@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/plat.unity
+- path: Assets/mainMenu.unity
   isLoaded: 1
   isActive: 1

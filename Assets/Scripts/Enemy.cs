@@ -21,15 +21,17 @@ public class Enemy : Character
     private Vector3 startPos;
 
     [SerializeField]
-    private Transform leftEdge;
-    [SerializeField]
-    private Transform rightEdge;
+    private int monsterLevel;
+
+    //[SerializeField]
+    //private Transform leftEdge;
+    //[SerializeField]
+    //private Transform rightEdge;
 
     private Canvas healthCanvas;
 
-    private bool coinDropped;
-    private int monsterLevel = 1;
-    private float currentReceiveDamage = 10;
+    //private bool coinDropped;
+    private float currentReceiveDamage;
     private int skyMoneyDropNum = 8;
 
     private bool gotCrit;
@@ -57,7 +59,7 @@ public class Enemy : Character
             if (Target != null)
             {
 
-                return (Mathf.Abs(transform.position.x-Target.transform.position.x)) <= meleeRange;
+                return (Mathf.Abs(transform.position.x - Target.transform.position.x)) <= meleeRange;
                 //return Vector2.Distance(transform.position, Target.transform.position) <= meleeRange;
             }
             return false;
@@ -132,13 +134,13 @@ public class Enemy : Character
                 }
                 ChangeDirection();
             }
-            
+
         }
     }
 
     void Update()
     {
-        if (!IsDead)
+        if (!IsDead && this.tag != "EnemyDead")
         {
             if (!TakingDamage)
             {
@@ -165,26 +167,43 @@ public class Enemy : Character
         }
     }
 
+    void FixedUpdate()
+    {
+        //if (GameManager.Instance.GameMode == "Arcade_Mode")
+        //{
+
+        //}
+        if (GameManager.Instance.GameMode == "Story_Mode")
+        {
+            if (monsterLevel < GameManager.Instance.EnemyLevel)
+            {
+                GameObject.Destroy(this);
+            }
+        }
+    }
+
     void RainingCollectibles(bool fellOff)
     {
         if (fellOff && !rained)
         {
             rained = true;
 
-            CombatTextManager.Instance.CreateBigText(new Vector3 (GameObject.Find("Player").transform.position.x, GameObject.Find("Player").transform.position.y + 1.5f, GameObject.Find("Player").transform.position.z), "KNOCKED OFF", Color.red, true);
+            CombatTextManager.Instance.CreateBigText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "KNOCKED OFF", Color.red, true, 2f, true);
             source.PlayOneShot(coinRain, 0.5F);
 
             //Rain One burger
-            GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+            //GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+            GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(Camera.main.gameObject.transform.position.x + UnityEngine.Random.Range(-16.5f,16.5f), 18), Quaternion.identity);
             Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
             //Increase score
-            GameManager.Instance.KillCount += Mathf.FloorToInt(monsterLevel / 1.5f);
-            GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
-            //GameManager.Instance.NumKills++;
+            GameManager.Instance.KillCount += Mathf.CeilToInt(monsterLevel / 1.5f);
+            //GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
+            GameManager.Instance.NumKills++;
             //Rain coins
             for (int i = 0; i < (skyMoneyDropNum + Mathf.FloorToInt(monsterLevel / 1.5f)); i++)
             {
-                GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+                //GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+                GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(Camera.main.gameObject.transform.position.x + UnityEngine.Random.Range(-16.5f, 16.5f), 18), Quaternion.identity);
                 Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
             }
             //Unlock
@@ -201,13 +220,37 @@ public class Enemy : Character
         currentState = newState;
         currentState.Enter(this);
     }
+    
 
-    public void Move()
+//Test code for future usage for finding closest x
+    //GameObject FindClosestEdge()
+    //{
+    //    GameObject[] gos;
+    //    gos = GameObject.FindGameObjectsWithTag("Edge");
+    //    GameObject closest = null;
+    //    float distance = Mathf.Infinity;
+    //    Vector3 position = transform.position;
+    //    foreach (GameObject go in gos)
+    //    {
+    //        Vector3 diff = go.transform.position - position;
+    //        float curDistance = diff.sqrMagnitude;
+    //        if (curDistance < distance)
+    //        {
+    //            closest = go;
+    //            distance = curDistance;
+    //        }
+    //    }
+    //    return closest;
+    //}
+
+
+public void Move()
     {
         if (!Attack)
         {
             //Edge detection
-            if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
+            //if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
+            if ((GetDirection().x > 0 && transform.position.x < this.transform.parent.gameObject.transform.parent.gameObject.transform.Find("RightEdge").position.x) || (GetDirection().x < 0 && transform.position.x > this.transform.parent.gameObject.transform.parent.gameObject.transform.Find("LeftEdge").position.x))
             {
                 MyAnimator.SetFloat("speed", 1);
                 transform.Translate(GetDirection() * movementSpeed * Time.deltaTime);
@@ -221,122 +264,117 @@ public class Enemy : Character
 
     public Vector2 GetDirection()
     {
-        return facingRight ? Vector2.right : Vector2.left; //if fR is true, then V2.right
+        return facingRight ? Vector2.right : Vector2.left; //if fR is true 1, then V2.right else -1 and left
     }
 
     public override void OnTriggerEnter2D(Collider2D other)
     {
         base.OnTriggerEnter2D(other);
         currentState.OnTriggerEnter(other);
-
-
-        //if (other.tag == "Edge" && Target != null)
-        //{
-        //    Debug.Log("hello");
-        //    Target = null;
-        //    ChangeDirection();
-        //}
     }
 
     public override IEnumerator TakeDamage(string currentDmgSrc)
     {
-
-        if (currentDmgSrc == "prd")
+        if (this.tag != "EnemyDead")
         {
-            currentReceiveDamage = GameManager.Instance.PlayerRangedDmg;
-            source.PlayOneShot(takeRangedSound, 0.2F);
-        }
-        if (currentDmgSrc == "pmd")
-        {
-            currentReceiveDamage = GameManager.Instance.PlayerMeleeDmg;
-            source.PlayOneShot(takeMeleeSound, 0.3F);
-        }
-
-        //Critical Hit %
-        if (UnityEngine.Random.Range(1, 13) == 2)
-        {
-            currentReceiveDamage = Mathf.FloorToInt(currentReceiveDamage * 1.5f);
-            gotCrit = true;
-        }
-
-        healthStat.CurrentVal -= currentReceiveDamage;
-
-        if (Target == null)
-        {
-            ChangeDirection();
-        }
-
-        if (!healthCanvas.isActiveAndEnabled)
-        {
-            healthCanvas.enabled = true;
-        }
-
-        //Quick way for critical hit text, FUTURE: re-order to truncate code
-        if (!IsDead)
-        {
-            MyAnimator.SetTrigger("damage");
-            if (!gotCrit)
+            if (currentDmgSrc == "prd")
             {
-                CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false);
+                currentReceiveDamage = GameManager.Instance.PlayerRangedDmg;
+                source.PlayOneShot(takeRangedSound, 0.2F);
             }
-            else
+            if (currentDmgSrc == "pmd")
             {
-                CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, true);
+                currentReceiveDamage = GameManager.Instance.PlayerMeleeDmg;
+                source.PlayOneShot(takeMeleeSound, 0.3F);
             }
-        }
-        else
-        {
-            MyAnimator.SetTrigger("die");
-            GameManager.Instance.KillCount += (monsterLevel * 2 - 1);
-            //GameManager.Instance.NumKills++;
-            GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
-            if (!coinDropped)
+
+            //Critical Hit %
+            if (UnityEngine.Random.Range(1, 13) == 2)
             {
+                currentReceiveDamage = Mathf.FloorToInt(currentReceiveDamage * 1.5f);
+                gotCrit = true;
+            }
+
+            healthStat.CurrentVal -= currentReceiveDamage;
+
+            if (Target == null)
+            {
+                ChangeDirection();
+            }
+
+            if (!healthCanvas.isActiveAndEnabled)
+            {
+                healthCanvas.enabled = true;
+            }
+
+            //Quick way for critical hit text, FUTURE: re-order to truncate code
+            if (!IsDead)
+            {
+                MyAnimator.SetTrigger("damage");
                 if (!gotCrit)
                 {
-                    CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false);
+                    CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false, 0f, true);
                 }
                 else
                 {
-                    CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, true);
+                    CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, true, 0f, true);
                 }
-                //Randomized position drop for higher level = higher coin count Mathf.CeilToInt(monsterLevel/2)
-                for (int i = 0; i < Mathf.CeilToInt(monsterLevel / 1.8f); i++)
-                {
-                    GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
-                    Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-                }
-                if (UnityEngine.Random.Range(1, 6) == 3)
-                {
-                    GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
-                    Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
-                }
-                //this.tag = "EnemyDead";
             }
-            coinDropped = true;
-            yield return null;
+            else
+            {
+                MyAnimator.SetTrigger("die");
+                GameManager.Instance.KillCount += (monsterLevel * 2 - 1);
+                GameManager.Instance.NumKills++;
+                //GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
+                if (this.tag != "EnemyDead")
+                {
+                    if (!gotCrit)
+                    {
+                        CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.white, false, 0f, true);
+                    }
+                    else
+                    {
+                        CombatTextManager.Instance.CreateText(transform.position, Convert.ToString(currentReceiveDamage), Color.red, true, 0f, true);
+                    }
+                    //Randomized position drop for higher level = higher coin count Mathf.CeilToInt(monsterLevel/2)
+                    for (int i = 0; i < Mathf.CeilToInt(monsterLevel / 1.8f); i++)
+                    {
+                        GameObject coin = (GameObject)Instantiate(GameManager.Instance.CoinPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
+                        Physics2D.IgnoreCollision(coin.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    }
+                    if (UnityEngine.Random.Range(1, 6) == 3)
+                    {
+                        GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(transform.position.x + UnityEngine.Random.Range(0.0f, 1.5f), transform.position.y + UnityEngine.Random.Range(1.0f, 3.8f)), Quaternion.identity);
+                        Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
+                    }
+                    this.tag = "EnemyDead";
+                }
+                //coinDropped = true;
+                yield return null;
+            }
+            gotCrit = false;
         }
-        gotCrit = false;
     }
-
-
+    
     public override void Death()
     {
         fellOff = false;
         rained = false;
         time = 0;
-        //this.tag = "Enemy";
+        this.tag = "Enemy";
         //Fix for dead body dropping coins
-        coinDropped = false;
+        //coinDropped = false;
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
-        healthStat.MaxVal += 10;
+        healthStat.MaxVal = GameManager.Instance.EnemyHealth;
         healthStat.CurrentVal = healthStat.MaxVal;
-        monsterLevel++;
+        //for when not death
+        //healthStat.CurrentVal += 10;
+        monsterLevel = GameManager.Instance.EnemyLevel;
         healthCanvas.enabled = false;
         Target = null;
 
-        transform.position = new Vector3(startPos.x + UnityEngine.Random.Range(3.0f, 6.0f), startPos.y, startPos.z);
+        transform.position = new Vector3(startPos.x + UnityEngine.Random.Range(2.5f, 6.5f), startPos.y, startPos.z);
     }
 
     //ChangeDirection in Enemy
@@ -359,9 +397,9 @@ public class Enemy : Character
         //Pits the health bar back in the correct position.
         tmp.position = pos;
     }
-    
 
-        public void PlaySwingAtk()
+
+    public void PlaySwingAtk()
     {
         source.PlayOneShot(swingSound, 0.68F);
     }

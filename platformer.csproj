@@ -93,6 +93,7 @@
     <Compile Include="Assets\JoystickControl.cs" />
     <Compile Include="Assets\JumpBehavior.cs" />
     <Compile Include="Assets\LandBehavior.cs" />
+    <Compile Include="Assets\QuitHandler.cs" />
     <Compile Include="Assets\Scripts\BarScript.cs" />
     <Compile Include="Assets\Scripts\CameraFollow.cs" />
     <Compile Include="Assets\Scripts\Character.cs" />
@@ -108,6 +109,7 @@
     <Compile Include="Assets\Scripts\EnemyStates\MeleeState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\PatrolState.cs" />
     <Compile Include="Assets\Scripts\EnemyStates\RangedState.cs" />
+    <Compile Include="Assets\Scripts\FindClosestGameObj.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\IgnoreCollision.cs" />
     <Compile Include="Assets\Scripts\ImprovedJump.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="Assets\Scripts\MuteMusic.cs" />
     <Compile Include="Assets\Scripts\PauseMenu.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
+    <Compile Include="Assets\Scripts\PlayerStat.cs" />
     <Compile Include="Assets\Scripts\Projectile.cs" />
     <Compile Include="Assets\Scripts\QuitMenu.cs" />
     <Compile Include="Assets\Scripts\RandomSpawner.cs" />

@@ -5,6 +5,7 @@ using UnityEngine;
 public class DeathBehavior : StateMachineBehaviour {
 
     private float respawnTime = 12;
+    private float playerRespawnTime = 5;
     private float deathTimer;
     
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
@@ -16,11 +17,23 @@ public class DeathBehavior : StateMachineBehaviour {
 	override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex) {
         deathTimer += Time.deltaTime;
 
-        if (deathTimer >= respawnTime)
+        if (animator.GetComponent<Character>().tag == "Player")
         {
-            deathTimer = 0;
-            animator.GetComponent<Character>().Death();
+            if (deathTimer >= playerRespawnTime)
+            {
+                deathTimer = 0;
+                animator.GetComponent<Character>().Death();
+            }
         }
+        else
+        {
+            if (deathTimer >= respawnTime)
+            {
+                deathTimer = 0;
+                animator.GetComponent<Character>().Death();
+            }
+        }
+        
 	}   
 
 	// OnStateExit is called when a transition ends and the state machine finishes evaluating this state

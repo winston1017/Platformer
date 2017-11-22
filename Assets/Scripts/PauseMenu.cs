@@ -13,11 +13,6 @@ public class PauseMenu : MonoBehaviour
     public GameObject pauseMenuCanvas;
     public GameObject endMenuCanvas;
 
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     public void Resume()
     {
         isPaused = false;
