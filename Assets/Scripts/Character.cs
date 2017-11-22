@@ -13,7 +13,7 @@ public abstract class Character : MonoBehaviour
 
     [SerializeField]
     protected float movementSpeed;
-    
+
     [SerializeField]
     protected GameObject knifePrefab;
 
@@ -33,9 +33,9 @@ public abstract class Character : MonoBehaviour
 
     protected bool facingRight;
 
-    public abstract bool IsDead { get; }    
+    public abstract bool IsDead { get; }
 
-    public bool Attack { get; set;}
+    public bool Attack { get; set; }
 
     public bool TakingDamage { get; set; }
 
@@ -55,7 +55,7 @@ public abstract class Character : MonoBehaviour
         facingRight = true;
         MyAnimator = GetComponent<Animator>();
         healthStat.Initialize();
-}
+    }
 
     // Update is called once per frame
     void Update()
@@ -95,10 +95,10 @@ public abstract class Character : MonoBehaviour
 
     public virtual void OnTriggerEnter2D(Collider2D other)
     {
-        if (damageSources.Contains (other.tag))
+        if (damageSources.Contains(other.tag))
         {
             if (other.tag == "Knife")
-            { 
+            {
                 StartCoroutine(TakeDamage(playerRangedDmgStr));
             }
             if (other.tag == "Sword")

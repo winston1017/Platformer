@@ -19,9 +19,7 @@ public class Enemy : Character
     private float chaseRangeLo;
 
     private Vector3 startPos;
-
-    [SerializeField]
-    private int monsterLevel;
+    private int monsterLevel = 1;
 
     //[SerializeField]
     //private Transform leftEdge;
@@ -104,6 +102,7 @@ public class Enemy : Character
 
     public override void Start()
     {
+
         base.Start();
         Player.Instance.Dead += new DeadEventHandler(RemoveTarget);
         ChangeState(new IdleState());
@@ -130,7 +129,7 @@ public class Enemy : Character
                 //FIX FOR SPINNING ENEMIES
                 if (Vector2.Distance(transform.position, new Vector2(transform.position.x, Target.transform.position.y)) > 5)
                 {
-                    Target = null;
+                    RemoveTarget();
                 }
                 ChangeDirection();
             }
@@ -140,6 +139,13 @@ public class Enemy : Character
 
     void Update()
     {
+        if (GameManager.Instance.GameMode == "Story_Mode")
+        {
+            if (monsterLevel < GameManager.Instance.StoryLevelUnlock + 1)
+            {
+                Destroy(gameObject);
+            }
+        }
         if (!IsDead && this.tag != "EnemyDead")
         {
             if (!TakingDamage)
@@ -164,6 +170,13 @@ public class Enemy : Character
                 currentState.Execute();
             }
             LookAtTarget();
+            if (monsterLevel < GameManager.Instance.EnemyLevel)
+            {
+                monsterLevel = GameManager.Instance.EnemyLevel;
+
+                healthStat.MaxVal = GameManager.Instance.EnemyHealth;
+                healthStat.CurrentVal = GameManager.Instance.EnemyHealth;
+            }
         }
     }
 
@@ -173,13 +186,7 @@ public class Enemy : Character
         //{
 
         //}
-        if (GameManager.Instance.GameMode == "Story_Mode")
-        {
-            if (monsterLevel < GameManager.Instance.EnemyLevel)
-            {
-                GameObject.Destroy(this);
-            }
-        }
+        
     }
 
     void RainingCollectibles(bool fellOff)
@@ -196,6 +203,7 @@ public class Enemy : Character
             GameObject burger = (GameObject)Instantiate(GameManager.Instance.BurgerPrefab, new Vector3(Camera.main.gameObject.transform.position.x + UnityEngine.Random.Range(-16.5f,16.5f), 18), Quaternion.identity);
             Physics2D.IgnoreCollision(burger.GetComponent<Collider2D>(), GetComponent<Collider2D>());
             //Increase score
+            Debug.Log(monsterLevel);
             GameManager.Instance.KillCount += Mathf.CeilToInt(monsterLevel / 1.5f);
             //GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
             GameManager.Instance.NumKills++;
@@ -249,7 +257,6 @@ public void Move()
         if (!Attack)
         {
             //Edge detection
-            //if ((GetDirection().x > 0 && transform.position.x < rightEdge.position.x) || (GetDirection().x < 0 && transform.position.x > leftEdge.position.x))
             if ((GetDirection().x > 0 && transform.position.x < this.transform.parent.gameObject.transform.parent.gameObject.transform.Find("RightEdge").position.x) || (GetDirection().x < 0 && transform.position.x > this.transform.parent.gameObject.transform.parent.gameObject.transform.Find("LeftEdge").position.x))
             {
                 MyAnimator.SetFloat("speed", 1);
@@ -323,6 +330,7 @@ public void Move()
             else
             {
                 MyAnimator.SetTrigger("die");
+                Debug.Log(monsterLevel);
                 GameManager.Instance.KillCount += (monsterLevel * 2 - 1);
                 GameManager.Instance.NumKills++;
                 //GameManager.Instance.EnemyMeleeDmg += (Mathf.FloorToInt(GameManager.Instance.KillCount / 250f));
@@ -349,7 +357,6 @@ public void Move()
                     }
                     this.tag = "EnemyDead";
                 }
-                //coinDropped = true;
                 yield return null;
             }
             gotCrit = false;
@@ -362,15 +369,13 @@ public void Move()
         rained = false;
         time = 0;
         this.tag = "Enemy";
-        //Fix for dead body dropping coins
-        //coinDropped = false;
         MyAnimator.SetTrigger("idle");
         MyAnimator.ResetTrigger("die");
         healthStat.MaxVal = GameManager.Instance.EnemyHealth;
         healthStat.CurrentVal = healthStat.MaxVal;
+        monsterLevel = GameManager.Instance.EnemyLevel;
         //for when not death
         //healthStat.CurrentVal += 10;
-        monsterLevel = GameManager.Instance.EnemyLevel;
         healthCanvas.enabled = false;
         Target = null;
 

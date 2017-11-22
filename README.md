@@ -1,4 +1,4 @@
-# KNOCK THEM OFF! (In play store)
+# KNOCK THEM OFF! (On play store)
 
 This is a 2D platformer game project. Have been made open-source again on Nov, 2017.
 Controls are mobile friendly now as well as desktop friendly during dev mode.
@@ -9,21 +9,25 @@ Controls are mobile friendly now as well as desktop friendly during dev mode.
 
 **TODO (PRIORITIZED):**
 
-NEW: Scrolling damage text (DONE)
+NEW: Story mode diff levels (DONE)
 
-NEW: Raining reward for knock offs (DONE)
+NEW: Respawn script, + camera disable (DONE)
 
-NEW: Jump mechanics improved (DONE)
+NEW: Size scalable for future monster growing and/or player size up transform.localscale (DONE)
 
-Melee and ranged attacks do different damage
+NEW: Independent player/monster level/dmg/speed for upgrades (DONE)
+
+Scrolling damage text (DONE)
+
+Raining reward for knock offs (DONE)
+
+Jump mechanics improved (DONE)
 
 Joystick control and re-arrange button layout (DONE)
 
-Background change by score
+Sound Effects (DONE)
 
-Sound fx (DONE)
-
-Hit fx (DONE)
+Hit Effects (DONE)
 
 Death = lose score - > Game Over screen (DONE)
 
@@ -35,6 +39,10 @@ Food drops (DONE)
 
 Smooth out animations, the "stun" right now is not what I want (DONE)
 
+
+
+Near-future:
+
 Mass level increments (maybe?)
 
 Rewards (require a graphic designer for new sprites)
@@ -42,6 +50,10 @@ Rewards (require a graphic designer for new sprites)
 Auto generate levels
 
 Next level screen
+
+
+
+Future:
 
 Climbing ladders
 

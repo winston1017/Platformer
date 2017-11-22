@@ -54,8 +54,9 @@ public class QuitHandler : MonoBehaviour
         //Application.Quit();
         //UnityEngine.SceneManagement.SceneManager.LoadScene("mainMenu");
 
-        endMenuCanvas.SetActive(true);
-        Time.timeScale = 0f;
+        //endMenuCanvas.SetActive(true);
+        GameManager.Instance.DeathCount = 3;
+        Time.timeScale = 1f;
     }
 
     /// <summary>

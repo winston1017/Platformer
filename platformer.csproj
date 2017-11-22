@@ -76,6 +76,12 @@
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Xcode">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEditor.iOS.Extensions.Common">
+      <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Platformer.Plugins.csproj">
@@ -112,10 +118,10 @@
     <Compile Include="Assets\Scripts\FindClosestGameObj.cs" />
     <Compile Include="Assets\Scripts\GameManager.cs" />
     <Compile Include="Assets\Scripts\IgnoreCollision.cs" />
-    <Compile Include="Assets\Scripts\ImprovedJump.cs" />
     <Compile Include="Assets\Scripts\Knife.cs" />
     <Compile Include="Assets\Scripts\LevelLoader.cs" />
     <Compile Include="Assets\Scripts\MainMenu.cs" />
+    <Compile Include="Assets\Scripts\Main_HighScore.cs" />
     <Compile Include="Assets\Scripts\MeleeCollider.cs" />
     <Compile Include="Assets\Scripts\MuteMusic.cs" />
     <Compile Include="Assets\Scripts\PauseMenu.cs" />

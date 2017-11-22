@@ -9,15 +9,10 @@ public class MainMenu : MonoBehaviour {
     string gameModeKey = "GameMode";
 
     public bool chosenGame;
-
-    void Start()
-    {
-        GameManager.Instance.SelectedGameMode = false;
-    }
+    
 
     public void NewGame()
     {
-        GameManager.Instance.SelectedGameMode = true;
         //SceneManager.LoadScene(1);
         PlayerPrefs.SetString(gameModeKey, "Story_Mode");
         PlayerPrefs.Save();
@@ -25,7 +20,6 @@ public class MainMenu : MonoBehaviour {
     }
     public void OldGame()
     {
-        GameManager.Instance.SelectedGameMode = true;
         //SceneManager.LoadScene(1);
         PlayerPrefs.SetString(gameModeKey, "Arcade_Mode");
         PlayerPrefs.Save();

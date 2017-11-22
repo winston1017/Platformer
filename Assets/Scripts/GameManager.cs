@@ -12,17 +12,17 @@ public class GameManager : MonoBehaviour
 
     public GameObject endMenuCanvas;
     [SerializeField]
-    private float playerRangedDmg;
+    private float playerRangedDmg = 10;
     [SerializeField]
-    private float playerMeleeDmg;
+    private float playerMeleeDmg = 10;
     [SerializeField]
-    private float enemyRangedDmg;
+    private float enemyRangedDmg = 10;
     [SerializeField]
-    private float enemyMeleeDmg;
+    private float enemyMeleeDmg = 10;
     [SerializeField]
-    private int enemyLevel;
+    private int enemyLevel = 1;
     [SerializeField]
-    private int enemyHealth;
+    private int enemyHealth = 30;
 
     [SerializeField]
     private string gameMode;
@@ -78,13 +78,15 @@ public class GameManager : MonoBehaviour
     private int ArcadeHighScore = 0;
     string ArcadeHighScoreKey = "ArcadeScore";
 
-    public bool SelectedGameMode;
 
     //private string gameChosen = "";
     string gameModeKey = "GameMode";
 
     private int arcadeKillsReq = 5;
     private int levelOneReqKills = 3;
+
+    private int storyLevelUnlock = 0;
+    private int announcedUnlock = 0;
     //private int levelTwoReqKills = 2;
 
     //This is to show how much player has collected
@@ -327,18 +329,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int EnemyLevel
-    {
-        get
-        {
-            return enemyLevel;
-        }
+    //public int EnemyLevel
+    //{
+    //    get
+    //    {
+    //        return enemyLevel;
+    //    }
 
-        set
-        {
-            enemyLevel = value;
-        }
-    }
+    //    set
+    //    {
+    //        enemyLevel = value;
+    //    }
+    //}
 
     public string GameMode
     {
@@ -353,16 +355,29 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public bool SelectedGameMode1
+    public int StoryLevelUnlock
     {
         get
         {
-            return SelectedGameMode;
+            return storyLevelUnlock;
         }
 
         set
         {
-            SelectedGameMode = value;
+            storyLevelUnlock = value;
+        }
+    }
+
+    public int EnemyLevel
+    {
+        get
+        {
+            return enemyLevel;
+        }
+
+        set
+        {
+            enemyLevel = value;
         }
     }
 
@@ -370,26 +385,16 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         gameMode = PlayerPrefs.GetString(gameModeKey, "Arcade_Mode");
-
-        //Initialize values
         EnemyLevel = 1;
-        playerRangedDmg = 10;
-        playerMeleeDmg = 10;
-        enemyRangedDmg = 10;
-        enemyMeleeDmg = 10;
-        enemyHealth = 30;
-        Debug.Log("inside gm start" + SelectedGameMode);
-        if (SelectedGameMode)
+        EnemyHealth = 30;
+        //Initialize values
+        if (gameMode == "Arcade_Mode")
         {
-            Debug.Log("selected");
-            if (gameMode == "Arcade_Mode")
-            {
-                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "ARCADE MODE", Color.yellow, true, 3f, true);
-            }
-            else if (gameMode == "Story_Mode")
-            {
-                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "STORY MODE \n LEVEL ONE", Color.yellow, true, 3f, true);
-            }
+            CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "ARCADE MODE", Color.yellow, true, 3f, true);
+        }
+        else if (gameMode == "Story_Mode")
+        {
+            CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "STORY MODE \n LEVEL ONE", Color.yellow, true, 3f, true);
         }
         //PlayerPrefs.SetInt(savedCollectedCoinsKey, 0); - resetting for test
         killCount = 0;
@@ -404,12 +409,10 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-
         if (deathCount >= 3)
         {
             endMenuCanvas.SetActive(true);
             Time.timeScale = 0f;
-
             //calculate new coins
             gameOverSavedCollectedCoins = Mathf.CeilToInt(killCount * 0.088f);
 
@@ -443,10 +446,10 @@ public class GameManager : MonoBehaviour
                 PlayerPrefs.Save();
             }
 
-            if (numKills > arcadeKillsReq)
+            if (numKills == arcadeKillsReq)
             {
-                enemyHealth += 10;
                 enemyLevel++;
+                enemyHealth += 10;
                 enemyRangedDmg++;
                 enemyMeleeDmg++;
                 CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "Enemies got stronger", Color.yellow, true, 3f, true);
@@ -464,11 +467,19 @@ public class GameManager : MonoBehaviour
                 PlayerPrefs.Save();
             }
 
-            if (numKills == levelOneReqKills)
+            if (numKills == levelOneReqKills && StoryLevelUnlock == 0)
             {
-                enemyHealth = 60;
-                enemyLevel = 10;
-                CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "LEVEL TWO OPEN ->", Color.yellow, true, 3f, true);
+                StoryLevelUnlock++;
+
+                enemyHealth += 20;
+                enemyLevel++;
+                if (announcedUnlock == 0)
+                {
+                    CombatTextManager.Instance.CreateAnnounceText(new Vector3(Camera.main.gameObject.transform.position.x, Camera.main.gameObject.transform.position.y + 1f, 0), "LEVEL TWO OPEN ->", Color.yellow, true, 3f, true);
+                    announcedUnlock++;
+                    GameObject killBarrier = GameObject.Find("LevelBarrier1");
+                    Destroy(killBarrier);
+                }
             }
         }
     }
