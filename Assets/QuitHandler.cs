@@ -53,10 +53,10 @@ public class QuitHandler : MonoBehaviour
         Debug.Log("Ok go game over screen");
         //Application.Quit();
         //UnityEngine.SceneManagement.SceneManager.LoadScene("mainMenu");
-
+        Time.timeScale = 0f;
         //endMenuCanvas.SetActive(true);
         GameManager.Instance.DeathCount = 3;
-        Time.timeScale = 1f;
+        
     }
 
     /// <summary>

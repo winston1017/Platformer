@@ -17,6 +17,8 @@ NEW: Size scalable for future monster growing and/or player size up transform.lo
 
 NEW: Independent player/monster level/dmg/speed for upgrades (DONE)
 
+NEW: High Score local storage
+
 Scrolling damage text (DONE)
 
 Raining reward for knock offs (DONE)

@@ -33,6 +33,7 @@ public class Enemy : Character
     private int skyMoneyDropNum = 8;
 
     private bool gotCrit;
+    private int currentStoryLevel;
 
     //Fall off respawn timer count
     private float time;
@@ -47,7 +48,7 @@ public class Enemy : Character
     public AudioClip drownSound;
 
     private AudioSource source;
-
+    //public Rigidbody2D enemyRigidbody { get; set; }
     public GameObject Target { get; set; }
 
     public bool InMeleeRange
@@ -102,12 +103,13 @@ public class Enemy : Character
 
     public override void Start()
     {
-
+        //enemyRigidbody = GetComponent<Rigidbody2D>();
+        currentStoryLevel = GameManager.Instance.StoryLevelUnlock;
         base.Start();
         Player.Instance.Dead += new DeadEventHandler(RemoveTarget);
         ChangeState(new IdleState());
         healthCanvas = transform.GetComponentInChildren<Canvas>();
-        startPos = transform.position;
+        startPos = new Vector3 (transform.position.x, transform.position.y + 1.5f, transform.position.z);
         source = GetComponent<AudioSource>();
     }
 
@@ -141,7 +143,7 @@ public class Enemy : Character
     {
         if (GameManager.Instance.GameMode == "Story_Mode")
         {
-            if (monsterLevel < GameManager.Instance.StoryLevelUnlock + 1)
+            if (currentStoryLevel < GameManager.Instance.StoryLevelUnlock)
             {
                 Destroy(gameObject);
             }
@@ -164,6 +166,7 @@ public class Enemy : Character
                     time += Time.deltaTime;
                     if (time >= 12)
                     {
+                        this.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
                         Death();
                     }
                 }
@@ -173,7 +176,6 @@ public class Enemy : Character
             if (monsterLevel < GameManager.Instance.EnemyLevel)
             {
                 monsterLevel = GameManager.Instance.EnemyLevel;
-
                 healthStat.MaxVal = GameManager.Instance.EnemyHealth;
                 healthStat.CurrentVal = GameManager.Instance.EnemyHealth;
             }
@@ -277,7 +279,7 @@ public void Move()
     public override void OnTriggerEnter2D(Collider2D other)
     {
         base.OnTriggerEnter2D(other);
-        currentState.OnTriggerEnter(other);
+        //currentState.OnTriggerEnter2D(other); //what doe sthis do
     }
 
     public override IEnumerator TakeDamage(string currentDmgSrc)
@@ -289,7 +291,7 @@ public void Move()
                 currentReceiveDamage = GameManager.Instance.PlayerRangedDmg;
                 source.PlayOneShot(takeRangedSound, 0.2F);
             }
-            if (currentDmgSrc == "pmd")
+            else if (currentDmgSrc == "pmd")
             {
                 currentReceiveDamage = GameManager.Instance.PlayerMeleeDmg;
                 source.PlayOneShot(takeMeleeSound, 0.3F);

@@ -7,6 +7,7 @@ public delegate void DeadEventHandler();
 
 public class Player : Character
 {
+    public LayerMask groundLayer;
 
     private static Player instance;
     public event DeadEventHandler Dead;
@@ -51,7 +52,7 @@ public class Player : Character
 
     //private float btnHorizontal;
 
-    private Vector2 startPos;
+    public Vector2 startPos;
 
     public AudioClip swingSound;
     public AudioClip throwSound;
@@ -104,7 +105,7 @@ public class Player : Character
 
     void Update()
     {
-        OnGround = IsGrounded();
+
 
         //if (!TakingDamage && !IsDead)
         if (!IsDead)
@@ -136,11 +137,17 @@ public class Player : Character
             {
                 this.GetComponent<Animator>().SetBool("land", false);
             }
-            OnGround = IsGrounded();
-            
+
             if (!cameraDisabler)
             {
+                OnGround = GroundCheck();
+                
+                if (btnJumping && GroundCheck() && Jump && btnJumping == true && MyRigidbody.velocity.y == 0)
+                {
+                    MyRigidbody.velocity = Vector2.up * jumpVelocity;
+                }
                 float horizontal = CrossPlatformInputManager.GetAxis("Horizontal");
+                //float horizontal = Input.GetAxis("Horizontal");
                 HandleMovement(horizontal);
                 Flip(horizontal);
                 HandleLayers();
@@ -162,7 +169,15 @@ public class Player : Character
             Dead();
         }
     }
-
+    private void HandleJump()
+    {
+        
+        if (Jump && btnJumping == true) // || MyRigidbody.velocity.y > -8.8
+        {
+            MyRigidbody.velocity = Vector2.up * jumpVelocity;
+            //source.PlayOneShot(jumpSound, 0.13F);
+        }
+    }
     //new HandleMovement
     private void HandleMovement(float horizontal)
     {
@@ -171,23 +186,23 @@ public class Player : Character
             MyAnimator.SetBool("land", true);
         }
         // causes unable to jump when tapping fast //if (Jump && OnGround && (MyRigidbody.velocity.y == 0)) // || MyRigidbody.velocity.y > -8.8
-        if (Jump && OnGround) // || MyRigidbody.velocity.y > -8.8
-        {
-            MyRigidbody.velocity = Vector2.up * jumpVelocity;
-            source.PlayOneShot(jumpSound, 0.13F);
-        }
-        if (!Attack && !Slide && (OnGround || airControl)) // add one for aircontrool and in air and slow it down
+        //if (Jump && GroundCheck() && btnJumping == true) // || MyRigidbody.velocity.y > -8.8
+        //{
+        //    MyRigidbody.velocity = Vector2.up * jumpVelocity;
+        //    //source.PlayOneShot(jumpSound, 0.13F);
+        //}
+        if (!Attack && !Slide && (GroundCheck() || airControl)) // add one for aircontrool and in air and slow it down
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed, MyRigidbody.velocity.y);
         }
-        if (Attack && !Slide && (OnGround || airControl))
+        if (Attack && !Slide && (GroundCheck() || airControl))
         {
             MyRigidbody.velocity = new Vector2(horizontal * movementSpeed / 1.8f, MyRigidbody.velocity.y);
         }
-        if (Jump && OnGround && (MyRigidbody.velocity.y < 0)) // || MyRigidbody.velocity.y > -8.8
-        {
-            Debug.Log("tried to jump but velocity Y is < 0 = " + MyRigidbody.velocity.y);
-        }
+        //if (Jump && GroundCheck() && (MyRigidbody.velocity.y < 0)) // || MyRigidbody.velocity.y > -8.8
+        //{
+        //    Debug.Log("tried to jump but velocity Y is < 0 = " + MyRigidbody.velocity.y);
+        //}
         MyAnimator.SetFloat("speed", Mathf.Abs(horizontal));
     }
     private void HandleInput()
@@ -223,7 +238,26 @@ public class Player : Character
         }
     }
 
-    private bool IsGrounded()
+    //private bool IsGrounded()
+    //{
+    //    if (MyRigidbody.velocity.y <= 0) // works when it is <= 0
+    //    {
+    //        foreach (Transform point in groundPoints)
+    //        {
+    //            Collider2D[] colliders = Physics2D.OverlapCircleAll(point.position, groundRadius, whatIsGround);
+    //            for (int i = 0; i < colliders.Length; i++)
+    //            {
+    //                if (colliders[i].gameObject != gameObject)
+    //                {
+    //                    return true;
+    //                }
+    //            }
+    //        }
+    //    }
+    //    return false;
+    //}
+
+    private bool GroundCheck()
     {
         if (MyRigidbody.velocity.y <= 0) // works when it is <= 0
         {
@@ -241,6 +275,30 @@ public class Player : Character
         }
         return false;
     }
+
+    //private bool GroundCheck()
+    //{
+
+    //    Vector2 position = transform.position;
+    //    Vector2 position2 = new Vector2(transform.position.x + 0.5f, transform.position.y);
+    //    Vector2 position3 = new Vector2(transform.position.x - 0.5f, transform.position.y);
+    //    Vector2 direction = Vector2.down;
+    //    float distance = 3f;
+    //    Debug.DrawRay(position, direction, Color.green);
+    //    Debug.DrawRay(position2, direction, Color.green);
+    //    Debug.DrawRay(position3, direction, Color.green);
+    //    RaycastHit2D hit = Physics2D.Raycast(position, direction, distance, groundLayer);
+    //    RaycastHit2D hit2 = Physics2D.Raycast(position, direction, distance, groundLayer);
+    //    RaycastHit2D hit3 = Physics2D.Raycast(position, direction, distance, groundLayer);
+
+
+    //    if (hit.collider != null || hit2.collider != null || hit3.collider != null)
+    //    {
+    //        return true;
+    //    }
+
+    //    return false;
+    //}
 
     private void HandleLayers()
     {
@@ -283,7 +341,7 @@ public class Player : Character
                 currentReceiveDamage = GameManager.Instance.EnemyRangedDmg;
                 source.PlayOneShot(takeDmgSound, 0.2F);
             }
-            if (currentDmgSrc == "emd")
+            else if (currentDmgSrc == "emd")
             {
                 currentReceiveDamage = GameManager.Instance.EnemyMeleeDmg;
                 source.PlayOneShot(takeDmgSound, 0.2F);

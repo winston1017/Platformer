@@ -7,6 +7,6 @@ public class IgnoreCollision : MonoBehaviour {
     private Collider2D other;
 	// Use this for initialization
 	private void Awake () {
-        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), other, true);
+        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), GameObject.Find("Player").GetComponent<Collider2D>(), true);
 	}
 }

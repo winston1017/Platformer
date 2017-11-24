@@ -41,7 +41,7 @@ public class MeleeState : IEnemyState {
         
     }
 
-    public void OnTriggerEnter(Collider2D other)
+    public void OnTriggerEnter2D(Collider2D other)
     {
         
     }

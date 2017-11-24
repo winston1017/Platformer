@@ -42,7 +42,8 @@ public class RandomSpawner : MonoBehaviour
     void SpawnObject()
     {
         time = 0;
-        Instantiate(spawnObject, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+        //Instantiate(spawnObject, new Vector3(UnityEngine.Random.Range(-43, 43), 18), Quaternion.identity);
+        Instantiate(spawnObject, new Vector3(Camera.main.gameObject.transform.position.x + UnityEngine.Random.Range(-13, 13), 18), Quaternion.identity);
     }
 
     //Sets the random time between minTime and maxTime

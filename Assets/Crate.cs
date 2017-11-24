@@ -13,6 +13,7 @@ public class Crate : MonoBehaviour
     private float time;
 
     //The time to spawn the object
+    [SerializeField]
     private float spawnTime = 10;
 
     // Use this for initialization
